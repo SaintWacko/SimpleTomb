@@ -3,6 +3,7 @@ package com.lothrazar.simpletomb.event;
 import com.lothrazar.cyclic.util.UtilChat;
 import com.lothrazar.simpletomb.ModTomb;
 import com.lothrazar.simpletomb.command.CommandGetGrave;
+import com.lothrazar.simpletomb.command.CommandList;
 import com.lothrazar.simpletomb.command.ITombCommand;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.StringArgumentType;
@@ -27,6 +28,7 @@ public class CommandEvents {
   @SubscribeEvent
   public void onRegisterCommandsEvent(RegisterCommandsEvent event) {
     COMMANDS.add(new CommandGetGrave());
+    COMMANDS.add(new CommandList());
     //
     if (SUBCOMMANDS.size() == 0) {
       for (ITombCommand cmd : COMMANDS) {

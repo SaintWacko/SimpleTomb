@@ -15,6 +15,7 @@ import org.apache.logging.log4j.Logger;
 @Mod(ModTomb.MODID)
 public class ModTomb {
 
+  public static final PlayerTombEvents GLOBAL = new PlayerTombEvents();
   public static final String MODID = "simpletomb";
   public static final Logger LOGGER = LogManager.getLogger();
 
@@ -30,6 +31,6 @@ public class ModTomb {
   }
 
   private void setup(final FMLCommonSetupEvent event) {
-    MinecraftForge.EVENT_BUS.register(new PlayerTombEvents());
+    MinecraftForge.EVENT_BUS.register(GLOBAL);
   }
 }

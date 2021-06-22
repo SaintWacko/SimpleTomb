@@ -1,5 +1,6 @@
 package com.lothrazar.simpletomb.event;
 
+import com.lothrazar.cyclic.ModCyclic;
 import com.lothrazar.simpletomb.ConfigTomb;
 import com.lothrazar.simpletomb.ModTomb;
 import com.lothrazar.simpletomb.TombRegistry;
@@ -10,16 +11,25 @@ import com.lothrazar.simpletomb.data.LocationBlockPos;
 import com.lothrazar.simpletomb.data.MessageType;
 import com.lothrazar.simpletomb.helper.EntityHelper;
 import com.lothrazar.simpletomb.helper.WorldHelper;
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 import net.minecraft.block.BlockState;
 import net.minecraft.entity.item.ItemEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
+import net.minecraft.nbt.CompressedStreamTools;
 import net.minecraft.nbt.ListNBT;
+import net.minecraft.nbt.NBTUtil;
 import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
 import net.minecraft.util.math.AxisAlignedBB;
@@ -27,8 +37,9 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.server.ServerWorld;
-import net.minecraftforge.event.entity.living.LivingDeathEvent;
+import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.event.entity.living.LivingDropsEvent;
+import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent.PlayerLoggedInEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent.PlayerRespawnEvent;
 import net.minecraftforge.event.world.ExplosionEvent.Detonate;
@@ -41,6 +52,8 @@ import org.apache.logging.log4j.Level;
 
 public class PlayerTombEvents {
 
+  public Map<UUID, GraveData> grv = new HashMap<>();
+  private static final String TOMB_FILE_EXT = ".mctomb";
   private static final String TB_SOULBOUND_STACKS = "tb_soulbound_stacks";
 
   @SubscribeEvent(priority = EventPriority.HIGH)
@@ -92,27 +105,26 @@ public class PlayerTombEvents {
     }
     keys.clear();
   }
-
-  private void storeIntegerStorageMap(PlayerEntity player) {
-    //  for (int i = 0; i < player.inventory.getSizeInventory(); i++) {
-    //      ModTomb.LOGGER.info(i + " player inventory = " + player.inventory.getStackInSlot(i));
-    //TODO: create an ITEMIDSLOT -> MAP
-    //to remap those first
-    //
-    //
-    // }
-  }
-
-  @SubscribeEvent
-  public void onPlayerDeath(LivingDeathEvent event) {
-    if (!ConfigTomb.TOMBENABLED.get()) {
-      return;
-    }
-    if (event.getEntityLiving() instanceof PlayerEntity) {
-      PlayerEntity player = (PlayerEntity) event.getEntityLiving();
-      storeIntegerStorageMap(player);
-    }
-  }
+  //  private void storeIntegerStorageMap(PlayerEntity player) {
+  //    //  for (int i = 0; i < player.inventory.getSizeInventory(); i++) {
+  //    //      ModTomb.LOGGER.info(i + " player inventory = " + player.inventory.getStackInSlot(i));
+  //    //TODO: create an ITEMIDSLOT -> MAP
+  //    //to remap those first
+  //    //
+  //    //
+  //    // }
+  //  }
+  //
+  //  @SubscribeEvent
+  //  public void onPlayerDeath(LivingDeathEvent event) {
+  //    if (!ConfigTomb.TOMBENABLED.get()) {
+  //      return;
+  //    }
+  //    if (event.getEntityLiving() instanceof PlayerEntity) {
+  //      PlayerEntity player = (PlayerEntity) event.getEntityLiving();
+  //      storeIntegerStorageMap(player);
+  //    }
+  //  }
 
   @SubscribeEvent(priority = EventPriority.LOWEST, receiveCanceled = true)
   public void onPlayerDrops(LivingDropsEvent event) {
@@ -123,6 +135,137 @@ public class PlayerTombEvents {
         WorldHelper.isRuleKeepInventory((PlayerEntity) event.getEntityLiving())) {
       return;
     }
+    saveBackup(event);
+    placeTombstone(event);
+  }
+
+  @SubscribeEvent
+  public void onSaveFile(PlayerEvent.SaveToFile event) {
+    PlayerEntity player = event.getPlayer();
+    File mctomb = new File(event.getPlayerDirectory(), player.getUniqueID() + TOMB_FILE_EXT);
+    //
+    //save player data to the file 
+    if (grv.containsKey(player.getUniqueID())) {
+      //yes i have data to save
+      GraveData dataToSave = grv.get(player.getUniqueID());
+      CompoundNBT data = dataToSave.write();
+      try {
+        FileOutputStream fileoutputstream = new FileOutputStream(mctomb);
+        CompressedStreamTools.writeCompressed(data, fileoutputstream);
+        fileoutputstream.close();
+        ModCyclic.LOGGER.error("TOMB PlayerEvent.SaveToFile" + data);
+        ModCyclic.LOGGER.error("# of tombs " + dataToSave.playerGraves.size());
+      }
+      catch (IOException e) {
+        ModCyclic.LOGGER.error("IO", e);
+      }
+    }
+  }
+
+  @SubscribeEvent
+  public void onLoadFile(PlayerEvent.LoadFromFile event) {
+    PlayerEntity player = event.getPlayer();
+    File mctomb = new File(event.getPlayerDirectory(), player.getUniqueID() + TOMB_FILE_EXT);
+    if (mctomb.exists()) {
+      try {
+        FileInputStream fileinputstream = new FileInputStream(mctomb);
+        CompoundNBT data = CompressedStreamTools.readCompressed(fileinputstream);
+        fileinputstream.close();
+        GraveData dataLoaded = new GraveData();
+        dataLoaded.read(data, player.getUniqueID());
+        if (grv.containsKey(player.getUniqueID())) {
+          //overwrite list
+          grv.put(player.getUniqueID(), dataLoaded);
+        }
+        else {
+          //set list
+          grv.put(player.getUniqueID(), dataLoaded);
+        }
+        ModCyclic.LOGGER.error("TOMB PlayerEvent.LoadFromFile " + data);
+        ModCyclic.LOGGER.error("# of tombs " + dataLoaded.playerGraves.size());
+      }
+      catch (Exception e) {
+        ModCyclic.LOGGER.error("IO", e);
+      }
+    }
+    //LOAD player data
+  }
+
+  public static class GraveData {
+
+    UUID playerId;
+    public List<CompoundNBT> playerGraves = new ArrayList<>();
+
+    public GraveData(UUID id, CompoundNBT first) {
+      playerId = id;
+      playerGraves.add(first);
+    }
+
+    public GraveData() {}
+
+    public void read(CompoundNBT data, UUID playerId) {
+      this.playerId = playerId;
+      if (data.contains(ModTomb.MODID)) {
+        ListNBT glist = data.getList(ModTomb.MODID, Constants.NBT.TAG_COMPOUND);
+        for (int i = 0; i < glist.size(); i++) {
+          this.playerGraves.add(glist.getCompound(i));
+        }
+      }
+    }
+
+    public CompoundNBT write() {
+      CompoundNBT data = new CompoundNBT();
+      ListNBT glist = new ListNBT();
+      for (CompoundNBT g : playerGraves) {
+        glist.add(g);
+      }
+      data.put(ModTomb.MODID, glist);
+      return data;
+    }
+  }
+
+  private void saveBackup(LivingDropsEvent event) {
+    ServerPlayerEntity player = (ServerPlayerEntity) event.getEntityLiving();
+    //    ServerWorld world = player.getServerWorld();
+    Iterator<ItemEntity> it = event.getDrops().iterator();
+    ListNBT drops = new ListNBT();
+    boolean isEmpty = true; //empty unless one non-key item found
+    CompoundNBT tombstoneTag = new CompoundNBT();
+    while (it.hasNext()) {
+      ItemEntity entityItem = it.next();
+      if (entityItem != null && !entityItem.getItem().isEmpty()) {
+        ItemStack stack = entityItem.getItem();
+        //        stuff.add(stack);
+        drops.add(stack.write(new CompoundNBT()));
+        if (stack.getItem() != TombRegistry.GRAVE_KEY) {
+          isEmpty = false;
+        }
+      }
+    }
+    if (!isEmpty) {
+      //NEW data model. write to string
+      //timestamp 
+      tombstoneTag.putLong("timestamp", System.currentTimeMillis());
+      tombstoneTag.put("drops", drops);
+      tombstoneTag.put("pos", NBTUtil.writeBlockPos(player.getPosition()));
+      tombstoneTag.putString("dimension", player.world.getDimensionKey().getLocation().toString());
+      UUID pid = player.getUniqueID();
+      tombstoneTag.putString("playerid", pid.toString());
+      tombstoneTag.putString("playername", player.getDisplayName().getString());
+      System.out.println(tombstoneTag);
+      // 
+      //    world.getSavedData().ge
+      //save to file
+      if (grv.containsKey(pid)) {
+        grv.get(pid).playerGraves.add(tombstoneTag);
+      }
+      else {
+        grv.put(pid, new GraveData(pid, tombstoneTag));
+      }
+    }
+  }
+
+  private void placeTombstone(LivingDropsEvent event) {
     ServerPlayerEntity player = (ServerPlayerEntity) event.getEntityLiving();
     ServerWorld world = player.getServerWorld();
     Iterator<ItemEntity> it = event.getDrops().iterator();
@@ -144,9 +287,6 @@ public class PlayerTombEvents {
       MessageType.MESSAGE_NO_LOOT_FOR_GRAVE.sendSpecialMessage(player);
       return;
     }
-    //    for (int i = 0; i < event.getDrops().size(); i++) {
-    //     ModTomb.LOGGER.info(i + " getdrops size = " + event.getDrops().get(i).getItem());
-    //    }
     BlockPos initPos = WorldHelper.getInitialPos(world, new BlockPos(player.getPosition()));
     LocationBlockPos spawnPos = WorldHelper.findGraveSpawn(player, initPos);
     if (spawnPos == null || spawnPos.toBlockPos() == null) {

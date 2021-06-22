@@ -112,6 +112,8 @@ dependencies {
     
 	  implementation fg.deobf("curse.maven:cyclic-239286:3188762")
 	  implementation fg.deobf("curse.maven:cosmetic-armor-reworked-237307:3205904")
+	  implementation fg.deobf("curse.maven:cofg-core-69162:3249453")
+	  implementation fg.deobf("curse.maven:ensorcellation-349447:3246996")
     // You may put jars on which you depend on in ./libs or you may define them like so..
     // compile "some.group:artifact:version:classifier"
     // compile "some.group:artifact:version"
