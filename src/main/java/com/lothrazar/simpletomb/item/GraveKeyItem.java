@@ -18,7 +18,9 @@ import net.minecraft.entity.LivingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.ItemTier;
 import net.minecraft.item.ItemUseContext;
+import net.minecraft.item.SwordItem;
 import net.minecraft.item.UseAction;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.ActionResultType;
@@ -33,12 +35,12 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 
-public class GraveKeyItem extends Item {
+public class GraveKeyItem extends SwordItem {
 
   private static final String TOMB_POS = "tombPos";
 
   public GraveKeyItem(Item.Properties properties) {
-    super(properties.maxStackSize(1));
+    super(ItemTier.STONE, 3, -2.4F, properties.maxStackSize(1));
   }
 
   @Override

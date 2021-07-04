@@ -252,8 +252,6 @@ public class PlayerTombEvents {
       UUID pid = player.getUniqueID();
       tombstoneTag.putString("playerid", pid.toString());
       tombstoneTag.putString("playername", player.getDisplayName().getString());
-      System.out.println(tombstoneTag);
-      // 
       //    world.getSavedData().ge
       //save to file
       if (grv.containsKey(pid)) {
