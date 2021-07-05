@@ -9,6 +9,7 @@ import com.lothrazar.simpletomb.block.TileEntityTomb;
 import com.lothrazar.simpletomb.data.DeathHelper;
 import com.lothrazar.simpletomb.data.LocationBlockPos;
 import com.lothrazar.simpletomb.data.MessageType;
+import com.lothrazar.simpletomb.data.PlayerTombRecords;
 import com.lothrazar.simpletomb.helper.EntityHelper;
 import com.lothrazar.simpletomb.helper.WorldHelper;
 import java.io.File;
@@ -37,7 +38,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.text.TextFormatting;
 import net.minecraft.util.text.TranslationTextComponent;
 import net.minecraft.world.server.ServerWorld;
-import net.minecraftforge.common.util.Constants;
 import net.minecraftforge.event.entity.living.LivingDropsEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent.PlayerLoggedInEvent;
@@ -52,11 +52,11 @@ import org.apache.logging.log4j.Level;
 
 public class PlayerTombEvents {
 
-  public Map<UUID, GraveData> grv = new HashMap<>();
+  public Map<UUID, PlayerTombRecords> grv = new HashMap<>();
   private static final String TOMB_FILE_EXT = ".mctomb";
   private static final String TB_SOULBOUND_STACKS = "tb_soulbound_stacks";
 
-  public GraveData findGrave(UUID id) {
+  public PlayerTombRecords findGrave(UUID id) {
     if (grv.containsKey(id)) {
       return grv.get(id);
     }
@@ -154,7 +154,7 @@ public class PlayerTombEvents {
     //save player data to the file 
     if (grv.containsKey(player.getUniqueID())) {
       //yes i have data to save
-      GraveData dataToSave = grv.get(player.getUniqueID());
+      PlayerTombRecords dataToSave = grv.get(player.getUniqueID());
       CompoundNBT data = dataToSave.write();
       try {
         FileOutputStream fileoutputstream = new FileOutputStream(mctomb);
@@ -178,7 +178,7 @@ public class PlayerTombEvents {
         FileInputStream fileinputstream = new FileInputStream(mctomb);
         CompoundNBT data = CompressedStreamTools.readCompressed(fileinputstream);
         fileinputstream.close();
-        GraveData dataLoaded = new GraveData();
+        PlayerTombRecords dataLoaded = new PlayerTombRecords();
         dataLoaded.read(data, player.getUniqueID());
         if (grv.containsKey(player.getUniqueID())) {
           //overwrite list
@@ -196,39 +196,6 @@ public class PlayerTombEvents {
       }
     }
     //LOAD player data
-  }
-
-  public static class GraveData {
-
-    UUID playerId;
-    public List<CompoundNBT> playerGraves = new ArrayList<>();
-
-    public GraveData(UUID id, CompoundNBT first) {
-      playerId = id;
-      playerGraves.add(first);
-    }
-
-    public GraveData() {}
-
-    public void read(CompoundNBT data, UUID playerId) {
-      this.playerId = playerId;
-      if (data.contains(ModTomb.MODID)) {
-        ListNBT glist = data.getList(ModTomb.MODID, Constants.NBT.TAG_COMPOUND);
-        for (int i = 0; i < glist.size(); i++) {
-          this.playerGraves.add(glist.getCompound(i));
-        }
-      }
-    }
-
-    public CompoundNBT write() {
-      CompoundNBT data = new CompoundNBT();
-      ListNBT glist = new ListNBT();
-      for (CompoundNBT g : playerGraves) {
-        glist.add(g);
-      }
-      data.put(ModTomb.MODID, glist);
-      return data;
-    }
   }
 
   private void saveBackup(LivingDropsEvent event) {
@@ -265,7 +232,7 @@ public class PlayerTombEvents {
         grv.get(pid).playerGraves.add(tombstoneTag);
       }
       else {
-        grv.put(pid, new GraveData(pid, tombstoneTag));
+        grv.put(pid, new PlayerTombRecords(pid, tombstoneTag));
       }
     }
   }
@@ -364,7 +331,7 @@ public class PlayerTombEvents {
     }
   }
 
-  private BlockState getRandomGrave(ServerWorld world, Direction facing) {
+  static BlockState getRandomGrave(ServerWorld world, Direction facing) {
     //TODO: CONFIG or other selection of what the player wants
     BlockTomb[] graves = new BlockTomb[] {
         TombRegistry.GRAVE_SIMPLE,
