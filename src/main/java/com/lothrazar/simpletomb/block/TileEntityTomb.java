@@ -5,6 +5,7 @@ import com.lothrazar.simpletomb.data.MessageType;
 import com.lothrazar.simpletomb.helper.EntityHelper;
 import com.lothrazar.simpletomb.helper.WorldHelper;
 import com.lothrazar.simpletomb.proxy.ClientUtils;
+import com.mojang.authlib.GameProfile;
 import java.util.UUID;
 import java.util.stream.IntStream;
 import javax.annotation.Nonnull;
@@ -96,6 +97,12 @@ public class TileEntityTomb extends TileEntity implements ITickableTileEntity {
     this.deathDate = System.currentTimeMillis();
     this.ownerName = owner.getDisplayName().getString();
     this.ownerId = owner.getUniqueID();
+  }
+
+  public void initTombstoneOwner(GameProfile owner) {
+    this.deathDate = 0;
+    this.ownerName = owner.getName();
+    this.ownerId = owner.getId();
   }
 
   public boolean isOwner(PlayerEntity owner) {

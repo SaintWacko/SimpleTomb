@@ -1,8 +1,10 @@
 package com.lothrazar.simpletomb.event;
 
 import com.lothrazar.simpletomb.ModTomb;
+import com.lothrazar.simpletomb.block.TileEntityTomb;
 import com.lothrazar.simpletomb.data.PlayerTombRecords;
 import com.lothrazar.simpletomb.helper.WorldHelper;
+import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.CommandDispatcher;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import com.mojang.brigadier.builder.LiteralArgumentBuilder;
@@ -11,7 +13,6 @@ import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import com.mojang.brigadier.suggestion.Suggestions;
 import com.mojang.brigadier.suggestion.SuggestionsBuilder;
 import java.util.List;
-import java.util.UUID;
 import java.util.concurrent.CompletableFuture;
 import net.minecraft.block.BlockState;
 import net.minecraft.command.CommandSource;
@@ -21,7 +22,6 @@ import net.minecraft.command.arguments.GameProfileArgument;
 import net.minecraft.entity.player.ServerPlayerEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.tileentity.TileEntity;
 import net.minecraft.util.Direction;
 import net.minecraft.util.RegistryKey;
 import net.minecraft.util.ResourceLocation;
@@ -80,13 +80,13 @@ public class CommandEvents {
     return ISuggestionProvider.suggest(cs.getSource().getServer().getPlayerList().getPlayers().stream().map(p -> p.getGameProfile().getName()), b);
   }
 
-  private UUID getPlayerIdArg(CommandContext<CommandSource> ctx) throws CommandSyntaxException {
-    return GameProfileArgument.getGameProfiles(ctx, ARG_PLAYER).stream().findFirst().orElse(null).getId();
+  private GameProfile getPlayerIdArg(CommandContext<CommandSource> ctx) throws CommandSyntaxException {
+    return GameProfileArgument.getGameProfiles(ctx, ARG_PLAYER).stream().findFirst().orElse(null);
   }
 
-  private int exeList(CommandContext<CommandSource> ctx, UUID id) throws CommandSyntaxException {
+  private int exeList(CommandContext<CommandSource> ctx, GameProfile target) throws CommandSyntaxException {
     ServerPlayerEntity user = ctx.getSource().asPlayer();
-    PlayerTombRecords found = ModTomb.GLOBAL.findGrave(id);
+    PlayerTombRecords found = ModTomb.GLOBAL.findGrave(target.getId());
     if (found != null) {
       TranslationTextComponent msg = new TranslationTextComponent("Found: #" + found.playerGraves.size());
       msg.appendString("====");
@@ -101,16 +101,16 @@ public class CommandEvents {
     return 1;
   }
 
-  private int exeRestore(CommandContext<CommandSource> ctx, UUID id, int index) throws CommandSyntaxException {
+  private int exeRestore(CommandContext<CommandSource> ctx, GameProfile target, int index) throws CommandSyntaxException {
     ServerPlayerEntity user = ctx.getSource().asPlayer();
-    TranslationTextComponent msg = new TranslationTextComponent("Restoring [" + index + "] for player " + id);
+    TranslationTextComponent msg = new TranslationTextComponent("Restoring [" + index + "] for player " + target.getName() + target.getId());
     user.sendMessage(msg, user.getUniqueID());
-    PlayerTombRecords found = ModTomb.GLOBAL.findGrave(id);
+    PlayerTombRecords found = ModTomb.GLOBAL.findGrave(target.getId());
     if (found != null) {
       CompoundNBT grave = found.playerGraves.get(index);
-      ModTomb.LOGGER.error("found " + grave);
       BlockPos pos = PlayerTombRecords.getPos(grave);
       String dim = PlayerTombRecords.getDim(grave);
+      ModTomb.LOGGER.error("found  at" + pos + " in " + dim);
       List<ItemStack> drops = PlayerTombRecords.getDrops(grave);
       ModTomb.LOGGER.error("items contained " + drops.size());
       //TODO: is this dupe code from location class
@@ -120,15 +120,17 @@ public class CommandEvents {
       boolean wasPlaced = WorldHelper.placeGrave(targetWorld, pos, state);
       if (wasPlaced) {
         //fill it up
-        TileEntity tile = targetWorld.getTileEntity(pos);
+        TileEntityTomb tile = (TileEntityTomb) targetWorld.getTileEntity(pos);
+        tile.initTombstoneOwner(target);
         IItemHandler itemHandler = tile.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null).orElse(null);
         //        ItemHandlerHelper.ins
         for (ItemStack d : drops) {
           ItemHandlerHelper.insertItemStacked(itemHandler, d.copy(), false);
         }
       }
+      msg = new TranslationTextComponent("Restored at [" + pos + "] in " + dim);
+      user.sendMessage(msg, user.getUniqueID());
     }
-    user.sendMessage(msg, user.getUniqueID());
     return 0;
   }
   //
