@@ -56,6 +56,13 @@ public class PlayerTombEvents {
   private static final String TOMB_FILE_EXT = ".mctomb";
   private static final String TB_SOULBOUND_STACKS = "tb_soulbound_stacks";
 
+  public GraveData findGrave(UUID id) {
+    if (grv.containsKey(id)) {
+      return grv.get(id);
+    }
+    return null;
+  }
+
   @SubscribeEvent(priority = EventPriority.HIGH)
   public void onPlayerLogged(PlayerLoggedInEvent event) {
     if (EntityHelper.isValidPlayerMP(event.getPlayer())) {
