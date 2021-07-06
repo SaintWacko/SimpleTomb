@@ -1,8 +1,11 @@
 package com.lothrazar.simpletomb.event;
 
 import com.lothrazar.simpletomb.ModTomb;
+import com.lothrazar.simpletomb.TombRegistry;
 import com.lothrazar.simpletomb.block.TileEntityTomb;
+import com.lothrazar.simpletomb.data.LocationBlockPos;
 import com.lothrazar.simpletomb.data.PlayerTombRecords;
+import com.lothrazar.simpletomb.data.TombCommands;
 import com.lothrazar.simpletomb.helper.WorldHelper;
 import com.mojang.authlib.GameProfile;
 import com.mojang.brigadier.CommandDispatcher;
@@ -40,21 +43,11 @@ import net.minecraftforge.items.ItemHandlerHelper;
 
 public class CommandEvents {
 
+  private static final String ARG_SELECTED = "selected";
   private static final String ARG_PLAYER = "player";
-
-  public static enum TombCommands {
-
-    RESTORE, LIST;
-
-    @Override
-    public String toString() {
-      return this.name().toLowerCase();
-    }
-  }
 
   @SubscribeEvent
   public void onRegisterCommandsEvent(RegisterCommandsEvent event) {
-    // 
     CommandDispatcher<CommandSource> r = event.getDispatcher();
     r.register(LiteralArgumentBuilder.<CommandSource> literal(ModTomb.MODID)
         .requires((p) -> {
@@ -62,17 +55,27 @@ public class CommandEvents {
         })
         .then(Commands.literal(TombCommands.RESTORE.toString())
             .then(Commands.argument(ARG_PLAYER, GameProfileArgument.gameProfile()).suggests((cs, b) -> buildPlayerArg(cs, b))
-                .then(Commands.argument("selected", IntegerArgumentType.integer())
+                .then(Commands.argument(ARG_SELECTED, IntegerArgumentType.integer())
                     .executes(x -> {
-                      int index = IntegerArgumentType.getInteger(x, "selected");
-                      return exeRestore(x, getPlayerIdArg(x), index);
+                      return exeRestore(x, getPlayerProfile(x), IntegerArgumentType.getInteger(x, ARG_SELECTED));
+                    }))))
+        .then(Commands.literal(TombCommands.KEY.toString())
+            .then(Commands.argument(ARG_PLAYER, GameProfileArgument.gameProfile()).suggests((cs, b) -> buildPlayerArg(cs, b))
+                .then(Commands.argument(ARG_SELECTED, IntegerArgumentType.integer())
+                    .executes(x -> {
+                      return exeKey(x, getPlayerProfile(x), IntegerArgumentType.getInteger(x, ARG_SELECTED));
                     }))))
         .then(Commands.literal(TombCommands.LIST.toString())
             .then(Commands.argument(ARG_PLAYER, GameProfileArgument.gameProfile()).suggests((cs, b) -> buildPlayerArg(cs, b))
                 .executes(x -> {
-                  return exeList(x, getPlayerIdArg(x));
+                  return exeList(x, getPlayerProfile(x));
                 })))
-    //
+        .then(Commands.literal(TombCommands.DELETE.toString())
+            .then(Commands.argument(ARG_PLAYER, GameProfileArgument.gameProfile()).suggests((cs, b) -> buildPlayerArg(cs, b))
+                .executes(x -> {
+                  return exeDelete(x, getPlayerProfile(x));
+                })))
+    // more go here
     );
   }
 
@@ -80,40 +83,77 @@ public class CommandEvents {
     return ISuggestionProvider.suggest(cs.getSource().getServer().getPlayerList().getPlayers().stream().map(p -> p.getGameProfile().getName()), b);
   }
 
-  private GameProfile getPlayerIdArg(CommandContext<CommandSource> ctx) throws CommandSyntaxException {
+  private GameProfile getPlayerProfile(CommandContext<CommandSource> ctx) throws CommandSyntaxException {
     return GameProfileArgument.getGameProfiles(ctx, ARG_PLAYER).stream().findFirst().orElse(null);
+  }
+
+  private int exeDelete(CommandContext<CommandSource> ctx, GameProfile target) throws CommandSyntaxException {
+    ServerPlayerEntity user = ctx.getSource().asPlayer();
+    PlayerTombRecords found = ModTomb.GLOBAL.findGrave(target.getId());
+    if (found != null) {
+      int previous = found.playerGraves.size();
+      found.deleteAll();
+      TranslationTextComponent msg = new TranslationTextComponent("Deleted: " + previous);
+      msg.setStyle(Style.EMPTY.setFormatting(TextFormatting.GOLD));
+      user.sendMessage(msg, user.getUniqueID());
+    }
+    return 0;
   }
 
   private int exeList(CommandContext<CommandSource> ctx, GameProfile target) throws CommandSyntaxException {
     ServerPlayerEntity user = ctx.getSource().asPlayer();
     PlayerTombRecords found = ModTomb.GLOBAL.findGrave(target.getId());
-    if (found != null) {
-      TranslationTextComponent msg = new TranslationTextComponent("Found: #" + found.playerGraves.size());
-      msg.appendString("====");
-      //      msg.appendString("# " + found.playerGraves.size());
-      for (CompoundNBT gd : found.playerGraves) {
-        msg.appendString("" + gd.toString() + "\r\n");
-        msg.appendString("====");
+    if (found != null && found.playerGraves.size() > 0) {
+      for (int i = 0; i < found.playerGraves.size(); i++) {
+        TranslationTextComponent msg = new TranslationTextComponent(found.toDisplayString(i));
+        msg.setStyle(Style.EMPTY.setFormatting(TextFormatting.GOLD));
+        user.sendMessage(msg, user.getUniqueID());
       }
+    }
+    else {
+      TranslationTextComponent msg = new TranslationTextComponent("Found: #0");
       msg.setStyle(Style.EMPTY.setFormatting(TextFormatting.GOLD));
       user.sendMessage(msg, user.getUniqueID());
     }
-    return 1;
+    return 0;
+  }
+
+  private int exeKey(CommandContext<CommandSource> ctx, GameProfile target, int index) throws CommandSyntaxException {
+    ServerPlayerEntity user = ctx.getSource().asPlayer();
+    PlayerTombRecords found = ModTomb.GLOBAL.findGrave(target.getId());
+    if (found != null) {
+      CompoundNBT grave = found.playerGraves.get(index);
+      if (grave == null) {
+        ModTomb.LOGGER.error("Invalid grave index " + index + "; try between 0 and  " + (found.playerGraves.size() - 1));
+        return 1;
+      }
+      LocationBlockPos spawnPos = new LocationBlockPos(PlayerTombRecords.getPos(grave), PlayerTombRecords.getDim(grave));
+      ItemStack key = new ItemStack(TombRegistry.GRAVE_KEY);
+      TombRegistry.GRAVE_KEY.setTombPos(key, spawnPos);
+      PlayerTombEvents.putKeyName(target.getName(), key);
+      // key for u
+      ItemHandlerHelper.giveItemToPlayer(user, key);
+    }
+    return 0;
   }
 
   private int exeRestore(CommandContext<CommandSource> ctx, GameProfile target, int index) throws CommandSyntaxException {
     ServerPlayerEntity user = ctx.getSource().asPlayer();
-    TranslationTextComponent msg = new TranslationTextComponent("Restoring [" + index + "] for player " + target.getName() + target.getId());
+    TranslationTextComponent msg = new TranslationTextComponent("Attempting to restore tomb [" + index + "] for player " + target.getName() + ":" + target.getId());
     user.sendMessage(msg, user.getUniqueID());
     PlayerTombRecords found = ModTomb.GLOBAL.findGrave(target.getId());
     if (found != null) {
       CompoundNBT grave = found.playerGraves.get(index);
+      if (grave == null) {
+        ModTomb.LOGGER.error("Invalid grave index " + index + "; try between 0 and  " + (found.playerGraves.size() - 1));
+        return 1;
+      }
       BlockPos pos = PlayerTombRecords.getPos(grave);
       String dim = PlayerTombRecords.getDim(grave);
-      ModTomb.LOGGER.error("found  at" + pos + " in " + dim);
+      //      ModTomb.LOGGER.error("found  at" + pos + " in " + dim);
       List<ItemStack> drops = PlayerTombRecords.getDrops(grave);
-      ModTomb.LOGGER.error("items contained " + drops.size());
-      //TODO: is this dupe code from location class
+      //      ModTomb.LOGGER.error("items contained " + drops.size());
+      //TODO: is this dupe code from location class?
       RegistryKey<World> dimKey = RegistryKey.getOrCreateKey(Registry.WORLD_KEY, ResourceLocation.tryCreate(dim));
       ServerWorld targetWorld = ctx.getSource().getWorld().getServer().getWorld(dimKey);
       BlockState state = PlayerTombEvents.getRandomGrave(targetWorld, Direction.NORTH);
@@ -128,7 +168,7 @@ public class CommandEvents {
           ItemHandlerHelper.insertItemStacked(itemHandler, d.copy(), false);
         }
       }
-      msg = new TranslationTextComponent("Restored at [" + pos + "] in " + dim);
+      msg = new TranslationTextComponent("Restored tomb with at [" + pos + "] in " + dim);
       user.sendMessage(msg, user.getUniqueID());
     }
     return 0;

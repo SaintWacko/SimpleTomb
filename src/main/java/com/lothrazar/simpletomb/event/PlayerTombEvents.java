@@ -316,14 +316,18 @@ public class PlayerTombEvents {
     }
   }
 
-  private void sendFailMessage(ServerPlayerEntity player) {
+  public static void sendFailMessage(ServerPlayerEntity player) {
     MessageType.MESSAGE_FAIL_TO_PLACE_GRAVE.sendSpecialMessage(player);
     ModTomb.LOGGER.log(Level.INFO, MessageType.MESSAGE_FAIL_TO_PLACE_GRAVE.getTranslation());
   }
 
-  private void setKeyName(ServerPlayerEntity player, ItemStack key) {
+  public static void setKeyName(ServerPlayerEntity player, ItemStack key) {
+    putKeyName(player.getName().getString(), key);
+  }
+
+  public static void putKeyName(String player, ItemStack key) {
     if (ConfigTomb.KEYNAMED.get()) {
-      TranslationTextComponent text = new TranslationTextComponent(player.getName().getString());
+      TranslationTextComponent text = new TranslationTextComponent(player);
       text.append(new TranslationTextComponent(" "));
       text.append(key.getDisplayName());
       text.mergeStyle(TextFormatting.GOLD);

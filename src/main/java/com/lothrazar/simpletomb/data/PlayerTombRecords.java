@@ -23,6 +23,13 @@ public class PlayerTombRecords {
 
   public PlayerTombRecords() {}
 
+  public CompoundNBT getGrave(int index) {
+    if (index >= playerGraves.size()) {
+      return null;
+    }
+    return playerGraves.get(index);
+  }
+
   public void read(CompoundNBT data, UUID playerId) {
     this.playerId = playerId;
     if (data.contains(ModTomb.MODID)) {
@@ -58,5 +65,21 @@ public class PlayerTombRecords {
       done.add(ItemStack.read(drops.getCompound(i)));
     }
     return done;
+  }
+
+  public void deleteAll() {
+    this.playerGraves = new ArrayList<>();
+  }
+
+  /**
+   * because mojang is pretty stupid and made this client only so copy paste
+   */
+  public String getCoordinatesAsString(BlockPos pos) {
+    return "" + pos.getX() + ", " + pos.getY() + ", " + pos.getZ();
+  }
+
+  public String toDisplayString(int i) {
+    CompoundNBT gd = getGrave(i);
+    return String.format("[%d] (%s) (%s) {%d}", i, getDim(gd), getCoordinatesAsString(getPos(gd)), getDrops(gd).size());
   }
 }
