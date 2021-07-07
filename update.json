@@ -1,8 +1,8 @@
 {
   "homepage": "https://www.curseforge.com/minecraft/mc-mods/simple-tomb",
   "promos": {
-    "1.16.5-latest": "1.0.8",
-    "1.16.5-recommended": "1.0.8"
+    "1.16.5-latest": "1.0.9",
+    "1.16.5-recommended": "1.0.9"
   },
   "1.16.5": {
     "1.0.0": "Port to 1.16.3 and latest forge RB "
@@ -14,5 +14,6 @@
   	,"1.0.6":"New feature: Theres a new way to open your grave, just use they key on the grave (sneak standing on it still works).  Helpful if you are in range of it but you cannot directly stand on it, for example when its down in the void or blocked in by a 1x1 bedrock space.  This comes with a config to disable the new feature. "
   	,"1.0.7":"Fix Exception loading blockstate definition: errors in log for blockstates.  New issue tracker created.  Fix grave overwriting waterlogged or non-solid blocks (hoppers, previous graves); it can still spawn in water.   "
   	,"1.0.8":"Mod now saves backup data for every new grave spawned.  New command /simpletomb that can restore gravestones with their items, and lost keys.  Key now deals damage similar to a Stone Sword. "
+  	,"1.0.9":"Hotfix /simpletomb command crash from 1.0.8"
   }
 }

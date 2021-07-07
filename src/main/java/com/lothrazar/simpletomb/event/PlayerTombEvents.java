@@ -1,6 +1,5 @@
 package com.lothrazar.simpletomb.event;
 
-import com.lothrazar.cyclic.ModCyclic;
 import com.lothrazar.simpletomb.ConfigTomb;
 import com.lothrazar.simpletomb.ModTomb;
 import com.lothrazar.simpletomb.TombRegistry;
@@ -160,11 +159,9 @@ public class PlayerTombEvents {
         FileOutputStream fileoutputstream = new FileOutputStream(mctomb);
         CompressedStreamTools.writeCompressed(data, fileoutputstream);
         fileoutputstream.close();
-        ModCyclic.LOGGER.error("TOMB PlayerEvent.SaveToFile" + data);
-        ModCyclic.LOGGER.error("# of tombs " + dataToSave.playerGraves.size());
       }
       catch (IOException e) {
-        ModCyclic.LOGGER.error("IO", e);
+        ModTomb.LOGGER.error("IO", e);
       }
     }
   }
@@ -188,11 +185,9 @@ public class PlayerTombEvents {
           //set list
           grv.put(player.getUniqueID(), dataLoaded);
         }
-        ModCyclic.LOGGER.error("TOMB PlayerEvent.LoadFromFile " + data);
-        ModCyclic.LOGGER.error("# of tombs " + dataLoaded.playerGraves.size());
       }
       catch (Exception e) {
-        ModCyclic.LOGGER.error("IO", e);
+        ModTomb.LOGGER.error("IO", e);
       }
     }
     //LOAD player data
