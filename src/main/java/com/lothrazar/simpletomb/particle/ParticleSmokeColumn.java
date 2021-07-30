@@ -1,10 +1,10 @@
 package com.lothrazar.simpletomb.particle;
 
 import com.lothrazar.simpletomb.TombRegistry;
-import net.minecraft.client.particle.ParticleProvider;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.NoRenderParticle;
 import net.minecraft.client.particle.Particle;
-import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.particle.ParticleProvider;
 import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;

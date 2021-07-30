@@ -1,11 +1,11 @@
 package com.lothrazar.simpletomb.data;
 
 import com.lothrazar.simpletomb.ModTomb;
-import net.minecraft.world.entity.player.Player;
+import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
-import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.world.entity.player.Player;
 
 public enum MessageType {
 

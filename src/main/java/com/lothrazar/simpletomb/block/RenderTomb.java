@@ -1,30 +1,23 @@
 package com.lothrazar.simpletomb.block;
 
-import com.lothrazar.simpletomb.data.MessageType;
-import com.lothrazar.simpletomb.helper.WorldHelper;
-import com.mojang.blaze3d.vertex.PoseStack;
-import com.mojang.blaze3d.systems.RenderSystem;
 import java.text.SimpleDateFormat;
 import java.util.Date;
-
-import net.minecraft.client.model.SkullModelBase;
-import net.minecraft.client.renderer.RenderType;
-import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
-import net.minecraft.world.level.block.AbstractSkullBlock;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.SkullBlock;
+import com.lothrazar.simpletomb.data.MessageType;
+import com.lothrazar.simpletomb.helper.WorldHelper;
+import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.math.Vector3f;
+import net.minecraft.ChatFormatting;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.Font;
 import net.minecraft.client.renderer.MultiBufferSource;
-import net.minecraft.client.renderer.blockentity.SkullBlockRenderer;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderer;
-import net.minecraft.client.renderer.blockentity.BlockEntityRenderDispatcher;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
 import net.minecraft.core.Direction;
 import net.minecraft.resources.ResourceLocation;
-import com.mojang.math.Vector3f;
-import net.minecraft.ChatFormatting;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
@@ -167,10 +160,9 @@ public class RenderTomb implements BlockEntityRenderer<TileEntityTomb> {
 
   @SuppressWarnings("deprecation")
   private void renderHalloween(PoseStack matrixStack, MultiBufferSource iRenderTypeBuffer, ModelTomb graveModel, Direction facing, int light, boolean isNight) {
-//    RenderSystem.enableRescaleNormal();
-
-     RenderSystem.disableCull();
-//    RenderSystem.enableAlphaTest();
+    //    RenderSystem.enableRescaleNormal();
+    RenderSystem.disableCull();
+    //    RenderSystem.enableAlphaTest();
     float decoX = 0.5f, decoY = 0.07f, decoZ = 0.5f;
     switch (graveModel) {
       case GRAVE_NORMAL:
@@ -207,15 +199,14 @@ public class RenderTomb implements BlockEntityRenderer<TileEntityTomb> {
     }
     else {
       matrixStack.scale(0.3f, 0.3f, 0.3f);
-
-//      SkullBlock.Type skullblock$type = ((AbstractSkullBlock)block).getType();
-//      SkullModelBase skullmodelbase = this.skullModels.get(skullblock$type);
-//      RenderType rendertype = SkullBlockRenderer.getRenderType(skullblock$type, gameprofile);
-//      SkullBlockRenderer.renderSkull((Direction)null, 180.0F, 0.0F, p_108832_, p_108833_, p_108834_, skullmodelbase, rendertype);
+      //      SkullBlock.Type skullblock$type = ((AbstractSkullBlock)block).getType();
+      //      SkullModelBase skullmodelbase = this.skullModels.get(skullblock$type);
+      //      RenderType rendertype = SkullBlockRenderer.getRenderType(skullblock$type, gameprofile);
+      //      SkullBlockRenderer.renderSkull((Direction)null, 180.0F, 0.0F, p_108832_, p_108833_, p_108834_, skullmodelbase, rendertype);
       // TODO:::
-//      SkullBlockRenderer.renderSkull(null, 1f, SkullBlock.Types.SKELETON, null, 0f, matrixStack, iRenderTypeBuffer, isNight ? 0xf000f0 : light);
+      //      SkullBlockRenderer.renderSkull(null, 1f, SkullBlock.Types.SKELETON, null, 0f, matrixStack, iRenderTypeBuffer, isNight ? 0xf000f0 : light);
     }
     matrixStack.popPose();
-//    RenderSystem.popMatrix();
+    //    RenderSystem.popMatrix();
   }
 }

@@ -1,14 +1,12 @@
 package com.lothrazar.simpletomb.particle;
 
+import java.util.Locale;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
-import java.util.Locale;
-import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleType;
+import net.minecraft.network.FriendlyByteBuf;
 import net.minecraftforge.registries.ForgeRegistries;
-
-import net.minecraft.core.particles.ParticleOptions.Deserializer;
 
 public class ParticleDataTwoInt implements ParticleOptions {
 

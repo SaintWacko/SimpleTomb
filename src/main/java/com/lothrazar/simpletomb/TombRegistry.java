@@ -4,12 +4,12 @@ import com.lothrazar.simpletomb.block.BlockTomb;
 import com.lothrazar.simpletomb.block.ModelTomb;
 import com.lothrazar.simpletomb.block.TileEntityTomb;
 import com.lothrazar.simpletomb.item.GraveKeyItem;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.material.Material;
-import net.minecraft.world.item.Item;
-import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.core.particles.ParticleType;
+import net.minecraft.core.particles.SimpleParticleType;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.material.Material;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.event.RegistryEvent.Register;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -73,6 +73,4 @@ public class TombRegistry {
     TombRegistry.SOUL.setRegistryName(ModTomb.MODID, "soul");
     r.register(TombRegistry.SOUL);
   }
-
-
 }

@@ -1,12 +1,12 @@
 package com.lothrazar.simpletomb.particle;
 
+import java.util.function.Predicate;
 import com.lothrazar.simpletomb.ModTomb;
 import com.lothrazar.simpletomb.helper.WorldHelper;
-import java.util.function.Predicate;
 import net.minecraft.client.multiplayer.ClientLevel;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.util.Mth;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 

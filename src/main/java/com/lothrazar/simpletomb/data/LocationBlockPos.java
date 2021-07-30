@@ -1,8 +1,8 @@
 package com.lothrazar.simpletomb.data;
 
 import com.lothrazar.simpletomb.helper.WorldHelper;
-import net.minecraft.world.entity.Entity;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.level.Level;
 
 public class LocationBlockPos {

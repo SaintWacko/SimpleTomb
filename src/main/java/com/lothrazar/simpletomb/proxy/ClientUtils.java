@@ -1,15 +1,15 @@
 package com.lothrazar.simpletomb.proxy;
 
+import java.util.function.Predicate;
 import com.lothrazar.simpletomb.TombRegistry;
 import com.lothrazar.simpletomb.block.RenderTomb;
 import com.lothrazar.simpletomb.event.ClientEvents;
 import com.lothrazar.simpletomb.particle.ParticleCasting;
-import java.util.function.Predicate;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
-import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.core.BlockPos;
+import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;

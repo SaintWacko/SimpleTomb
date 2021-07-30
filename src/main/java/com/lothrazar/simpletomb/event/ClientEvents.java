@@ -7,19 +7,17 @@ import com.lothrazar.simpletomb.helper.WorldHelper;
 import com.lothrazar.simpletomb.particle.ParticleGraveSmoke;
 import com.lothrazar.simpletomb.particle.ParticleGraveSoul;
 import com.lothrazar.simpletomb.particle.ParticleRotatingSmoke;
-import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.blaze3d.vertex.PoseStack;
+import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexFormat;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.client.particle.ParticleEngine;
-import com.mojang.blaze3d.vertex.BufferBuilder;
-import com.mojang.blaze3d.vertex.Tesselator;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.level.gameevent.GameEvent;
 import net.minecraft.world.phys.Vec3;
-import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.ParticleFactoryRegisterEvent;
@@ -58,6 +56,7 @@ public class ClientEvents {
 
   @SuppressWarnings("deprecation")
   private static void createBox(PoseStack matrixStack, double x, double y, double z, double offset) {
+    //    System.out.println("off "+z);
     Minecraft mc = Minecraft.getInstance();
     RenderSystem.disableTexture();
     RenderSystem.disableBlend();
@@ -83,8 +82,9 @@ public class ClientEvents {
     Tesselator tessellator = Tesselator.getInstance();
     BufferBuilder renderer = tessellator.getBuilder();
     renderer.begin(VertexFormat.Mode.LINES, DefaultVertexFormat.POSITION); // GL11.GL_LINES
-    RenderSystem.setShaderColor(color[0], color[1], color[2], 1f);
-    RenderSystem.lineWidth(7.5f);
+    RenderSystem.setShaderColor(color[0], color[1], color[2], 0f);
+    //    System.out.println("testy");
+    RenderSystem.lineWidth(2.5f);
     renderer.vertex(x, y, z).endVertex();
     renderer.vertex(x + offset, y, z).endVertex();
     renderer.vertex(x, y, z).endVertex();
@@ -111,11 +111,11 @@ public class ClientEvents {
     renderer.vertex(x, y + offset, z + offset).endVertex();
     tessellator.end();
     matrixStack.popPose();
-//    RenderSystem.popMatrix();
+    //    RenderSystem.popMatrix();
     RenderSystem.lineWidth(1f);
     RenderSystem.enableDepthTest();
     RenderSystem.enableBlend();
     RenderSystem.enableTexture();
-//        RenderSystem.color4f(1f, 1f, 1f, 1f);
+    //        RenderSystem.color4f(1f, 1f, 1f, 1f);
   }
 }

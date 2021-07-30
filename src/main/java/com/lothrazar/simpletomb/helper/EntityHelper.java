@@ -1,17 +1,16 @@
 package com.lothrazar.simpletomb.helper;
 
 import javax.annotation.Nullable;
-import net.minecraft.world.InteractionHand;
-import net.minecraft.world.item.enchantment.EnchantmentHelper;
-import net.minecraft.world.item.enchantment.Enchantments;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
-import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ArmorItem;
 import net.minecraft.world.item.ElytraItem;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.nbt.CompoundTag;
-import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.enchantment.EnchantmentHelper;
+import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.items.ItemHandlerHelper;
@@ -42,9 +41,9 @@ public class EntityHelper {
       //
       if (player.getOffhandItem().isEmpty()) {
         if (stack.getItem().isShield(stack, player)) { // && player.setSlot(99, stack.copy())) {
-//          player.setItemInHand(InteractionHand.OFF_HAND, stack.copy());
+          //          player.setItemInHand(InteractionHand.OFF_HAND, stack.copy());
           player.setItemSlot(EquipmentSlot.OFFHAND, stack.copy());
-//          player.getInventory().setItem(99, stack.copy());
+          //          player.getInventory().setItem(99, stack.copy());
           return true;
         }
       }

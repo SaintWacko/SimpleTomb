@@ -2,17 +2,16 @@ package com.lothrazar.simpletomb.particle;
 
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import com.mojang.blaze3d.vertex.Tesselator;
 import com.mojang.blaze3d.vertex.VertexConsumer;
 import com.mojang.blaze3d.vertex.VertexFormat;
+import net.minecraft.client.Camera;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.ParticleRenderType;
 import net.minecraft.client.particle.SingleQuadParticle;
-import net.minecraft.client.Camera;
-import com.mojang.blaze3d.platform.Lighting;
-import com.mojang.blaze3d.vertex.Tesselator;
 import net.minecraft.client.renderer.texture.TextureManager;
-import com.mojang.blaze3d.vertex.DefaultVertexFormat;
-import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
@@ -34,14 +33,13 @@ abstract class CustomParticle extends SingleQuadParticle {
   @Override
   public void render(VertexConsumer buffer, Camera entityIn, float partialTicks) {
     TextureManager textureManager = Minecraft.getInstance().textureManager;
-//    Lighting.turnOff();
-
+    //    Lighting.turnOff();
     RenderSystem.depthMask(false);
     textureManager.bindForSetup(getTexture());
     RenderSystem.enableBlend();
     RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
-//    RenderSystem.alphaFunc(516, 0.003921569F);
-//    Tesselator.getInstance().getBuilder().begin(7, DefaultVertexFormat.PARTICLE);
+    //    RenderSystem.alphaFunc(516, 0.003921569F);
+    //    Tesselator.getInstance().getBuilder().begin(7, DefaultVertexFormat.PARTICLE);
     Tesselator.getInstance().getBuilder().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.PARTICLE); // QUADS == tuess
     super.render(buffer, entityIn, partialTicks);
     Tesselator.getInstance().end();

@@ -1,14 +1,14 @@
 package com.lothrazar.simpletomb.data;
 
-import com.lothrazar.simpletomb.ModTomb;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import net.minecraft.world.item.ItemStack;
+import com.lothrazar.simpletomb.ModTomb;
+import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtUtils;
-import net.minecraft.core.BlockPos;
+import net.minecraft.world.item.ItemStack;
 import net.minecraftforge.common.util.Constants;
 
 public class PlayerTombRecords {

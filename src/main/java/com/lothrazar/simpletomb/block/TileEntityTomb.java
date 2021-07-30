@@ -1,29 +1,28 @@
 package com.lothrazar.simpletomb.block;
 
+import java.util.UUID;
+import java.util.stream.IntStream;
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
 import com.lothrazar.simpletomb.TombRegistry;
 import com.lothrazar.simpletomb.data.MessageType;
 import com.lothrazar.simpletomb.helper.EntityHelper;
 import com.lothrazar.simpletomb.helper.WorldHelper;
 import com.lothrazar.simpletomb.proxy.ClientUtils;
 import com.mojang.authlib.GameProfile;
-import java.util.UUID;
-import java.util.stream.IntStream;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
-
 import net.minecraft.core.BlockPos;
-import net.minecraft.world.level.Level;
-import net.minecraft.world.level.block.state.BlockState;
-import net.minecraft.world.entity.player.Player;
-import net.minecraft.world.Containers;
-import net.minecraft.world.item.ItemStack;
+import net.minecraft.core.Direction;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.Connection;
 import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
-import net.minecraft.world.level.block.entity.BlockEntity;
-import net.minecraft.core.Direction;
-import net.minecraft.sounds.SoundSource;
 import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.world.Containers;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.AABB;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.FakePlayer;
@@ -34,7 +33,7 @@ import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemHandlerHelper;
 import net.minecraftforge.items.ItemStackHandler;
 
-public class TileEntityTomb extends BlockEntity  {
+public class TileEntityTomb extends BlockEntity {
 
   private static final int SOULTIMER = 100;
 
@@ -225,20 +224,18 @@ public class TileEntityTomb extends BlockEntity  {
   public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt) {
     load(pkt.getTag());
   }
-
-
-//  public void tick() {
-//    this.timer++;
-//    if (this.timer % SOULTIMER == 0) {
-//      this.timer = 1;
-//      if (this.level.isClientSide) {
-//        ClientUtils.produceGraveSoul(this.level, this.worldPosition);
-//      }
-//    }
-//    if (this.level.isClientSide) {
-//      ClientUtils.produceGraveSmoke(this.level, this.worldPosition.getX(), this.worldPosition.getY(), this.worldPosition.getZ());
-//    }
-//  }
+  //  public void tick() {
+  //    this.timer++;
+  //    if (this.timer % SOULTIMER == 0) {
+  //      this.timer = 1;
+  //      if (this.level.isClientSide) {
+  //        ClientUtils.produceGraveSoul(this.level, this.worldPosition);
+  //      }
+  //    }
+  //    if (this.level.isClientSide) {
+  //      ClientUtils.produceGraveSmoke(this.level, this.worldPosition.getX(), this.worldPosition.getY(), this.worldPosition.getZ());
+  //    }
+  //  }
 
   public static void clientTick(Level level, BlockPos blockPos, BlockState blockState, TileEntityTomb tile) {
     ClientUtils.produceGraveSmoke(level, tile.worldPosition.getX(), tile.worldPosition.getY(), tile.worldPosition.getZ());
@@ -251,7 +248,7 @@ public class TileEntityTomb extends BlockEntity  {
 
   public static <E extends BlockEntity> void serverTick(Level level, BlockPos blockPos, BlockState blockState, TileEntityTomb tile) {
     tile.timer++;
-    if ((tile.timer-1) % SOULTIMER == 0) {
+    if ((tile.timer - 1) % SOULTIMER == 0) {
       tile.timer = 1;
     }
   }
