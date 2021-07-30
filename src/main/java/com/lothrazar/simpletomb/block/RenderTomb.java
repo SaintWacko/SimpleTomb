@@ -158,7 +158,6 @@ public class RenderTomb implements BlockEntityRenderer<TileEntityTomb> {
     matrixStack.popPose();
   }
 
-  @SuppressWarnings("deprecation")
   private void renderHalloween(PoseStack matrixStack, MultiBufferSource iRenderTypeBuffer, ModelTomb graveModel, Direction facing, int light, boolean isNight) {
     //    RenderSystem.enableRescaleNormal();
     RenderSystem.disableCull();

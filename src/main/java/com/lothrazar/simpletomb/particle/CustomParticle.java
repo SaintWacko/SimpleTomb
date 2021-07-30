@@ -12,7 +12,6 @@ import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.ParticleRenderType;
 import net.minecraft.client.particle.SingleQuadParticle;
 import net.minecraft.client.renderer.GameRenderer;
-import net.minecraft.client.renderer.texture.TextureAtlas;
 import net.minecraft.client.renderer.texture.TextureManager;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
@@ -31,7 +30,6 @@ abstract class CustomParticle extends SingleQuadParticle {
 
   abstract ResourceLocation getTexture();
 
-  @SuppressWarnings("deprecation")
   @Override
   public void render(VertexConsumer buffer, Camera entityIn, float partialTicks) {
     TextureManager textureManager = Minecraft.getInstance().textureManager;
@@ -42,7 +40,7 @@ abstract class CustomParticle extends SingleQuadParticle {
     RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
     //    RenderSystem.alphaFunc(516, 0.003921569F);
     //    Tesselator.getInstance().getBuilder().begin(7, DefaultVertexFormat.PARTICLE);
-    System.out.println("particle "+this);
+
     RenderSystem.setShader(GameRenderer::getParticleShader);
     RenderSystem.setShaderTexture(0, getTexture());
     Tesselator.getInstance().getBuilder().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.PARTICLE); // QUADS == tuess

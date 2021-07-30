@@ -54,7 +54,6 @@ public class ClientEvents {
     }
   }
 
-  @SuppressWarnings("deprecation")
   private static void createBox(PoseStack matrixStack, double x, double y, double z, double offset) {
     //    System.out.println("off "+z);
     offset=offset*2;
