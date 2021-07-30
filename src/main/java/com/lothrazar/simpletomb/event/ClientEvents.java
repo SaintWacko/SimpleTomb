@@ -57,6 +57,7 @@ public class ClientEvents {
   @SuppressWarnings("deprecation")
   private static void createBox(PoseStack matrixStack, double x, double y, double z, double offset) {
     //    System.out.println("off "+z);
+    offset=offset*2;
     Minecraft mc = Minecraft.getInstance();
     RenderSystem.disableTexture();
     RenderSystem.disableBlend();
@@ -83,7 +84,7 @@ public class ClientEvents {
     BufferBuilder renderer = tessellator.getBuilder();
     renderer.begin(VertexFormat.Mode.LINES, DefaultVertexFormat.POSITION); // GL11.GL_LINES
     RenderSystem.setShaderColor(color[0], color[1], color[2], 0f);
-    //    System.out.println("testy");
+//        System.out.println("testy");
     RenderSystem.lineWidth(2.5f);
     renderer.vertex(x, y, z).endVertex();
     renderer.vertex(x + offset, y, z).endVertex();
