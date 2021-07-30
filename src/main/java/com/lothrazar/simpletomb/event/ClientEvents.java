@@ -62,11 +62,10 @@ public class ClientEvents {
     RenderSystem.disableTexture();
     RenderSystem.disableBlend();
     RenderSystem.disableDepthTest();
-    GameEvent test;
-//    RenderSystem.pushMatrix();
     Vec3 viewPosition = mc.gameRenderer.getMainCamera().getPosition();
     long c = (System.currentTimeMillis() / 15L) % 360L;
     float[] color = WorldHelper.getHSBtoRGBF(c / 360f, 1f, 1f);
+    //    RenderSystem.pushMatrix();
     matrixStack.pushPose();
     // get a closer pos if too far
     Vec3 vec = new Vec3(x, y, z).subtract(viewPosition);
@@ -79,12 +78,13 @@ public class ClientEvents {
     x -= viewPosition.x();
     y -= viewPosition.y();
     z -= viewPosition.z();
-//    RenderSystem.multMatrix(matrixStack.last().pose()); // TODO: what is this
+    //    RenderSystem.multMatrix(matrixStack.last().pose()); // TODO: what is this. guess at projection
+    RenderSystem.setProjectionMatrix(matrixStack.last().pose());
     Tesselator tessellator = Tesselator.getInstance();
     BufferBuilder renderer = tessellator.getBuilder();
     renderer.begin(VertexFormat.Mode.LINES, DefaultVertexFormat.POSITION); // GL11.GL_LINES
     RenderSystem.setShaderColor(color[0], color[1], color[2], 1f);
-    RenderSystem.lineWidth(2.5f);
+    RenderSystem.lineWidth(7.5f);
     renderer.vertex(x, y, z).endVertex();
     renderer.vertex(x + offset, y, z).endVertex();
     renderer.vertex(x, y, z).endVertex();
@@ -116,6 +116,6 @@ public class ClientEvents {
     RenderSystem.enableDepthTest();
     RenderSystem.enableBlend();
     RenderSystem.enableTexture();
-    //    RenderSystem.color4f(1f, 1f, 1f, 1f);
+//        RenderSystem.color4f(1f, 1f, 1f, 1f);
   }
 }
