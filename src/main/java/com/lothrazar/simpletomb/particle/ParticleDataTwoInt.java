@@ -3,18 +3,20 @@ package com.lothrazar.simpletomb.particle;
 import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
 import java.util.Locale;
-import net.minecraft.network.PacketBuffer;
-import net.minecraft.particles.IParticleData;
-import net.minecraft.particles.ParticleType;
+import net.minecraft.network.FriendlyByteBuf;
+import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.core.particles.ParticleType;
 import net.minecraftforge.registries.ForgeRegistries;
 
-public class ParticleDataTwoInt implements IParticleData {
+import net.minecraft.core.particles.ParticleOptions.Deserializer;
+
+public class ParticleDataTwoInt implements ParticleOptions {
 
   @SuppressWarnings("deprecation")
-  public static final IDeserializer<ParticleDataTwoInt> DESERIALIZER = new IDeserializer<ParticleDataTwoInt>() {
+  public static final Deserializer<ParticleDataTwoInt> DESERIALIZER = new Deserializer<ParticleDataTwoInt>() {
 
     @Override
-    public ParticleDataTwoInt deserialize(ParticleType<ParticleDataTwoInt> particleType, StringReader reader) throws CommandSyntaxException {
+    public ParticleDataTwoInt fromCommand(ParticleType<ParticleDataTwoInt> particleType, StringReader reader) throws CommandSyntaxException {
       if (reader.canRead()) {
         reader.expect(' ');
       }
@@ -32,7 +34,7 @@ public class ParticleDataTwoInt implements IParticleData {
     }
 
     @Override
-    public ParticleDataTwoInt read(ParticleType<ParticleDataTwoInt> particleType, PacketBuffer buf) {
+    public ParticleDataTwoInt fromNetwork(ParticleType<ParticleDataTwoInt> particleType, FriendlyByteBuf buf) {
       return new ParticleDataTwoInt(particleType, buf.readInt(), buf.readInt());
     }
   };
@@ -51,13 +53,13 @@ public class ParticleDataTwoInt implements IParticleData {
   }
 
   @Override
-  public void write(PacketBuffer buf) {
+  public void writeToNetwork(FriendlyByteBuf buf) {
     buf.writeInt(this.oneInt);
     buf.writeInt(this.twoInt);
   }
 
   @Override
-  public String getParameters() {
+  public String writeToString() {
     return String.format(Locale.ROOT, "%s %d %d", ForgeRegistries.PARTICLE_TYPES.getKey(getType()), this.oneInt, this.twoInt);
   }
 }

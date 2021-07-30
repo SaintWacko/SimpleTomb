@@ -1,8 +1,8 @@
 package com.lothrazar.simpletomb.block;
 
-import net.minecraft.util.IStringSerializable;
+import net.minecraft.util.StringRepresentable;
 
-public enum ModelTomb implements IStringSerializable {
+public enum ModelTomb implements StringRepresentable {
 
   GRAVE_SIMPLE("grave_simple"), GRAVE_NORMAL("grave_normal"), GRAVE_CROSS("grave_cross"), GRAVE_TOMB("tombstone");
 
@@ -26,7 +26,7 @@ public enum ModelTomb implements IStringSerializable {
   }
 
   @Override
-  public String getString() {
+  public String getSerializedName() {
     return this.name;
   }
 }

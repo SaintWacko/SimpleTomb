@@ -4,12 +4,12 @@ import com.lothrazar.simpletomb.block.BlockTomb;
 import com.lothrazar.simpletomb.block.ModelTomb;
 import com.lothrazar.simpletomb.block.TileEntityTomb;
 import com.lothrazar.simpletomb.item.GraveKeyItem;
-import net.minecraft.block.Block;
-import net.minecraft.block.material.Material;
-import net.minecraft.item.Item;
-import net.minecraft.particles.BasicParticleType;
-import net.minecraft.particles.ParticleType;
-import net.minecraft.tileentity.TileEntityType;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.material.Material;
+import net.minecraft.world.item.Item;
+import net.minecraft.core.particles.SimpleParticleType;
+import net.minecraft.core.particles.ParticleType;
+import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraftforge.event.RegistryEvent;
 import net.minecraftforge.event.RegistryEvent.Register;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -20,11 +20,11 @@ import net.minecraftforge.registries.ObjectHolder;
 @Mod.EventBusSubscriber(bus = Mod.EventBusSubscriber.Bus.MOD)
 public class TombRegistry {
 
-  public static final BasicParticleType GRAVE_SMOKE = new BasicParticleType(false);
-  public static final BasicParticleType ROTATING_SMOKE = new BasicParticleType(false);
-  public static final BasicParticleType SOUL = new BasicParticleType(false);
+  public static final SimpleParticleType GRAVE_SMOKE = new SimpleParticleType(false);
+  public static final SimpleParticleType ROTATING_SMOKE = new SimpleParticleType(false);
+  public static final SimpleParticleType SOUL = new SimpleParticleType(false);
   @ObjectHolder(ModTomb.MODID + ":tombstone")
-  public static TileEntityType<TileEntityTomb> TOMBSTONETILEENTITY;
+  public static BlockEntityType<TileEntityTomb> TOMBSTONETILEENTITY;
   @ObjectHolder(ModTomb.MODID + ":grave_key")
   public static GraveKeyItem GRAVE_KEY;
   //four blocks
@@ -40,10 +40,10 @@ public class TombRegistry {
   @SubscribeEvent
   public static void registerBlocks(Register<Block> event) {
     IForgeRegistry<Block> r = event.getRegistry();
-    r.register(new BlockTomb(Block.Properties.create(Material.ROCK), ModelTomb.GRAVE_SIMPLE).setRegistryName("grave_simple"));
-    r.register(new BlockTomb(Block.Properties.create(Material.ROCK), ModelTomb.GRAVE_NORMAL).setRegistryName("grave_normal"));
-    r.register(new BlockTomb(Block.Properties.create(Material.ROCK), ModelTomb.GRAVE_CROSS).setRegistryName("grave_cross"));
-    r.register(new BlockTomb(Block.Properties.create(Material.ROCK), ModelTomb.GRAVE_TOMB).setRegistryName("tombstone"));
+    r.register(new BlockTomb(Block.Properties.of(Material.STONE), ModelTomb.GRAVE_SIMPLE).setRegistryName("grave_simple"));
+    r.register(new BlockTomb(Block.Properties.of(Material.STONE), ModelTomb.GRAVE_NORMAL).setRegistryName("grave_normal"));
+    r.register(new BlockTomb(Block.Properties.of(Material.STONE), ModelTomb.GRAVE_CROSS).setRegistryName("grave_cross"));
+    r.register(new BlockTomb(Block.Properties.of(Material.STONE), ModelTomb.GRAVE_TOMB).setRegistryName("tombstone"));
   }
 
   @SubscribeEvent
@@ -53,9 +53,9 @@ public class TombRegistry {
   }
 
   @SubscribeEvent
-  public static void onTileEntityRegistry(final RegistryEvent.Register<TileEntityType<?>> event) {
-    IForgeRegistry<TileEntityType<?>> r = event.getRegistry();
-    r.register(TileEntityType.Builder.create(TileEntityTomb::new, new BlockTomb[] {
+  public static void onTileEntityRegistry(final RegistryEvent.Register<BlockEntityType<?>> event) {
+    IForgeRegistry<BlockEntityType<?>> r = event.getRegistry();
+    r.register(BlockEntityType.Builder.of(TileEntityTomb::new, new BlockTomb[] {
         TombRegistry.GRAVE_SIMPLE,
         TombRegistry.GRAVE_NORMAL,
         TombRegistry.GRAVE_CROSS,

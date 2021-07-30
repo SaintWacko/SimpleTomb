@@ -4,65 +4,65 @@ import com.lothrazar.simpletomb.ModTomb;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.nbt.ListNBT;
-import net.minecraft.nbt.NBTUtil;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.nbt.ListTag;
+import net.minecraft.nbt.NbtUtils;
+import net.minecraft.core.BlockPos;
 import net.minecraftforge.common.util.Constants;
 
 public class PlayerTombRecords {
 
   UUID playerId;
-  public List<CompoundNBT> playerGraves = new ArrayList<>();
+  public List<CompoundTag> playerGraves = new ArrayList<>();
 
-  public PlayerTombRecords(UUID id, CompoundNBT first) {
+  public PlayerTombRecords(UUID id, CompoundTag first) {
     playerId = id;
     playerGraves.add(first);
   }
 
   public PlayerTombRecords() {}
 
-  public CompoundNBT getGrave(int index) {
+  public CompoundTag getGrave(int index) {
     if (index >= playerGraves.size()) {
       return null;
     }
     return playerGraves.get(index);
   }
 
-  public void read(CompoundNBT data, UUID playerId) {
+  public void read(CompoundTag data, UUID playerId) {
     this.playerId = playerId;
     if (data.contains(ModTomb.MODID)) {
-      ListNBT glist = data.getList(ModTomb.MODID, Constants.NBT.TAG_COMPOUND);
+      ListTag glist = data.getList(ModTomb.MODID, Constants.NBT.TAG_COMPOUND);
       for (int i = 0; i < glist.size(); i++) {
         this.playerGraves.add(glist.getCompound(i));
       }
     }
   }
 
-  public CompoundNBT write() {
-    CompoundNBT data = new CompoundNBT();
-    ListNBT glist = new ListNBT();
-    for (CompoundNBT g : playerGraves) {
+  public CompoundTag write() {
+    CompoundTag data = new CompoundTag();
+    ListTag glist = new ListTag();
+    for (CompoundTag g : playerGraves) {
       glist.add(g);
     }
     data.put(ModTomb.MODID, glist);
     return data;
   }
 
-  public static BlockPos getPos(CompoundNBT grave) {
-    return NBTUtil.readBlockPos(grave.getCompound("pos"));
+  public static BlockPos getPos(CompoundTag grave) {
+    return NbtUtils.readBlockPos(grave.getCompound("pos"));
   }
 
-  public static String getDim(CompoundNBT grave) {
+  public static String getDim(CompoundTag grave) {
     return grave.getString("dimension");
   }
 
-  public static List<ItemStack> getDrops(CompoundNBT grave) {
-    ListNBT drops = grave.getList("drops", 10);
+  public static List<ItemStack> getDrops(CompoundTag grave) {
+    ListTag drops = grave.getList("drops", 10);
     List<ItemStack> done = new ArrayList<ItemStack>();
     for (int i = 0; i < drops.size(); i++) {
-      done.add(ItemStack.read(drops.getCompound(i)));
+      done.add(ItemStack.of(drops.getCompound(i)));
     }
     return done;
   }
@@ -79,7 +79,7 @@ public class PlayerTombRecords {
   }
 
   public String toDisplayString(int i) {
-    CompoundNBT gd = getGrave(i);
+    CompoundTag gd = getGrave(i);
     return String.format("[%d] (%s) (%s) {%d}", i, getDim(gd), getCoordinatesAsString(getPos(gd)), getDrops(gd).size());
   }
 }

@@ -10,26 +10,26 @@ import com.lothrazar.simpletomb.helper.WorldHelper;
 import com.lothrazar.simpletomb.proxy.ClientUtils;
 import java.util.List;
 import javax.annotation.Nullable;
-import net.minecraft.block.BlockState;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.util.ITooltipFlag;
-import net.minecraft.entity.LivingEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.ItemTier;
-import net.minecraft.item.ItemUseContext;
-import net.minecraft.item.SwordItem;
-import net.minecraft.item.UseAction;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.ActionResultType;
-import net.minecraft.util.Hand;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.TranslationTextComponent;
-import net.minecraft.world.World;
+import net.minecraft.client.gui.screens.Screen;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Tiers;
+import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.item.SwordItem;
+import net.minecraft.world.item.UseAnim;
+import net.minecraft.world.InteractionResultHolder;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.items.CapabilityItemHandler;
@@ -40,25 +40,25 @@ public class GraveKeyItem extends SwordItem {
   private static final String TOMB_POS = "tombPos";
 
   public GraveKeyItem(Item.Properties properties) {
-    super(ItemTier.STONE, 3, -2.4F, properties.maxStackSize(1));
+    super(Tiers.STONE, 3, -2.4F, properties.stacksTo(1));
   }
 
   @Override
   @OnlyIn(Dist.CLIENT)
-  public ITextComponent getName() {
-    return new TranslationTextComponent(this.getTranslationKey()).mergeStyle(TextFormatting.GOLD);
+  public Component getDescription() {
+    return new TranslatableComponent(this.getDescriptionId()).withStyle(ChatFormatting.GOLD);
   }
 
   @Override
   public void onUsingTick(ItemStack stack, LivingEntity entity, int timeLeft) {
-    if (entity instanceof PlayerEntity) {
-      PlayerEntity player = (PlayerEntity) entity;
+    if (entity instanceof Player) {
+      Player player = (Player) entity;
       LocationBlockPos location = this.getTombPos(stack);
       if (location == null || location.isOrigin()
-          || location.dim.equalsIgnoreCase(WorldHelper.dimensionToString(player.world)) == false) {
+          || location.dim.equalsIgnoreCase(WorldHelper.dimensionToString(player.level)) == false) {
         return;
       }
-      double distance = location.getDistance(player.getPosition());
+      double distance = location.getDistance(player.blockPosition());
       boolean canTp = false;
       if (player.isCreative()) {
         canTp = ConfigTomb.TPCREATIVE.get();
@@ -72,11 +72,11 @@ public class GraveKeyItem extends SwordItem {
         if (timeLeft <= 1) {
           //teleport happens here
           BlockPos pos = location.toBlockPos();
-          player.setPositionAndUpdate(pos.getX(), pos.getY(), pos.getZ());
+          player.teleportTo(pos.getX(), pos.getY(), pos.getZ());
         }
-        else if (entity.world.isRemote) {
+        else if (entity.level.isClientSide) {
           //not done, and can TP
-          ClientUtils.produceParticleCasting(entity, p -> !p.isHandActive());
+          ClientUtils.produceParticleCasting(entity, p -> !p.isUsingItem());
         }
       }
     }
@@ -88,50 +88,50 @@ public class GraveKeyItem extends SwordItem {
   }
 
   @Override
-  public ActionResultType onItemUse(ItemUseContext context) {
+  public InteractionResult useOn(UseOnContext context) {
     if (ConfigTomb.KEYOPENONUSE.get()) {
-      BlockPos pos = context.getPos();
-      PlayerEntity player = context.getPlayer();
-      if (player.getHeldItem(context.getHand()).getItem() == TombRegistry.GRAVE_KEY) {
-        BlockState state = context.getWorld().getBlockState(pos);
+      BlockPos pos = context.getClickedPos();
+      Player player = context.getPlayer();
+      if (player.getItemInHand(context.getHand()).getItem() == TombRegistry.GRAVE_KEY) {
+        BlockState state = context.getLevel().getBlockState(pos);
         if (state.getBlock() instanceof BlockTomb) {
           //open me
-          BlockTomb.activatePlayerGrave(player.world, pos, state, player);
-          return ActionResultType.SUCCESS;
+          BlockTomb.activatePlayerGrave(player.level, pos, state, player);
+          return InteractionResult.SUCCESS;
         }
       }
     }
-    return ActionResultType.PASS;
+    return InteractionResult.PASS;
   }
 
   @Override
-  public ActionResult<ItemStack> onItemRightClick(World worldIn, PlayerEntity playerIn, Hand handIn) {
-    ItemStack itemstack = playerIn.getHeldItem(handIn);
-    playerIn.setActiveHand(handIn);
-    return ActionResult.resultSuccess(itemstack);
+  public InteractionResultHolder<ItemStack> use(Level worldIn, Player playerIn, InteractionHand handIn) {
+    ItemStack itemstack = playerIn.getItemInHand(handIn);
+    playerIn.startUsingItem(handIn);
+    return InteractionResultHolder.success(itemstack);
   }
 
   @Override
-  public UseAction getUseAction(ItemStack stack) {
-    return UseAction.BOW;
+  public UseAnim getUseAnimation(ItemStack stack) {
+    return UseAnim.BOW;
   }
 
   @Override
   @OnlyIn(Dist.CLIENT)
-  public void addInformation(ItemStack stack, @Nullable World world, List<ITextComponent> list, ITooltipFlag flag) {
+  public void appendHoverText(ItemStack stack, @Nullable Level world, List<Component> list, TooltipFlag flag) {
     if (Screen.hasShiftDown()) {
       LocationBlockPos location = this.getTombPos(stack);
       //      this.addItemPosition(list, this.getTombPos(stack));
-      PlayerEntity player = Minecraft.getInstance().player;
+      Player player = Minecraft.getInstance().player;
       if (player != null && !location.isOrigin()) {
-        BlockPos pos = player.getPosition();
+        BlockPos pos = player.blockPosition();
         int distance = (int) location.getDistance(pos);
-        list.add(new TranslationTextComponent(MessageType.MESSAGE_DISTANCE.getKey(),
+        list.add(new TranslatableComponent(MessageType.MESSAGE_DISTANCE.getKey(),
             distance, location.x, location.y, location.z, location.dim)
-                .mergeStyle(TextFormatting.DARK_PURPLE));
+                .withStyle(ChatFormatting.DARK_PURPLE));
       }
     }
-    super.addInformation(stack, world, list, flag);
+    super.appendHoverText(stack, world, list, flag);
   }
 
   public boolean setTombPos(ItemStack stack, LocationBlockPos location) {
@@ -151,7 +151,7 @@ public class GraveKeyItem extends SwordItem {
   /**
    * Look for any key that matches this Location and remove that key from player
    */
-  public boolean removeKeyForGraveInInventory(PlayerEntity player, LocationBlockPos graveLoc) {
+  public boolean removeKeyForGraveInInventory(Player player, LocationBlockPos graveLoc) {
     IItemHandler itemHandler = player.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null).orElse(null);
     if (itemHandler != null) {
       for (int i = 0; i < itemHandler.getSlots(); ++i) {
@@ -169,8 +169,8 @@ public class GraveKeyItem extends SwordItem {
   /**
    * How many keys, ignoring data. casts long to int
    */
-  public int countKeyInInventory(PlayerEntity player) {
-    return (int) player.inventory.mainInventory.stream()
+  public int countKeyInInventory(Player player) {
+    return (int) player.getInventory().items.stream()
         .filter(stack -> stack.getItem() == TombRegistry.GRAVE_KEY)
         .count();
   }

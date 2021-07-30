@@ -7,17 +7,19 @@ import com.lothrazar.simpletomb.helper.WorldHelper;
 import com.lothrazar.simpletomb.particle.ParticleGraveSmoke;
 import com.lothrazar.simpletomb.particle.ParticleGraveSoul;
 import com.lothrazar.simpletomb.particle.ParticleRotatingSmoke;
-import com.mojang.blaze3d.matrix.MatrixStack;
+import com.mojang.blaze3d.vertex.PoseStack;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.VertexFormat;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.entity.player.ClientPlayerEntity;
-import net.minecraft.client.particle.ParticleManager;
-import net.minecraft.client.renderer.BufferBuilder;
-import net.minecraft.client.renderer.Tessellator;
-import net.minecraft.client.renderer.vertex.DefaultVertexFormats;
-import net.minecraft.item.ItemStack;
-import net.minecraft.util.math.vector.Vector3d;
-import net.minecraft.world.World;
+import net.minecraft.client.player.LocalPlayer;
+import net.minecraft.client.particle.ParticleEngine;
+import com.mojang.blaze3d.vertex.BufferBuilder;
+import com.mojang.blaze3d.vertex.Tesselator;
+import com.mojang.blaze3d.vertex.DefaultVertexFormat;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.gameevent.GameEvent;
+import net.minecraft.world.phys.Vec3;
+import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.ParticleFactoryRegisterEvent;
@@ -25,7 +27,6 @@ import net.minecraftforge.client.event.RenderWorldLastEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
-import org.lwjgl.opengl.GL11;
 
 @Mod.EventBusSubscriber(modid = ModTomb.MODID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.MOD)
 @OnlyIn(Dist.CLIENT)
@@ -33,22 +34,22 @@ public class ClientEvents {
 
   @SubscribeEvent(priority = EventPriority.LOW)
   public static void registerParticleFactories(ParticleFactoryRegisterEvent event) {
-    ParticleManager r = Minecraft.getInstance().particles;
-    r.registerFactory(TombRegistry.GRAVE_SMOKE, ParticleGraveSmoke.Factory::new);
-    r.registerFactory(TombRegistry.ROTATING_SMOKE, ParticleRotatingSmoke.Factory::new);
-    r.registerFactory(TombRegistry.SOUL, ParticleGraveSoul.Factory::new);
+    ParticleEngine r = Minecraft.getInstance().particleEngine;
+    r.register(TombRegistry.GRAVE_SMOKE, ParticleGraveSmoke.Factory::new);
+    r.register(TombRegistry.ROTATING_SMOKE, ParticleRotatingSmoke.Factory::new);
+    r.register(TombRegistry.SOUL, ParticleGraveSoul.Factory::new);
   }
 
   @SubscribeEvent
   public void render(RenderWorldLastEvent event) {
-    ClientPlayerEntity player = Minecraft.getInstance().player;
-    if (player != null && player.world != null) {
-      ItemStack stack = player.getHeldItemMainhand();
+    LocalPlayer player = Minecraft.getInstance().player;
+    if (player != null && player.level != null) {
+      ItemStack stack = player.getMainHandItem();
       if (stack.getItem() == TombRegistry.GRAVE_KEY) {
         LocationBlockPos location = TombRegistry.GRAVE_KEY.getTombPos(stack);
         if (location != null && !location.isOrigin() &&
-            location.dim.equalsIgnoreCase(WorldHelper.dimensionToString(player.world)) &&
-            World.isValid(location.toBlockPos())) {
+            location.dim.equalsIgnoreCase(WorldHelper.dimensionToString(player.level)) &&
+            player.level.isInWorldBounds(location.toBlockPos())) {
           createBox(event.getMatrixStack(), location.x, location.y, location.z, 1.0D);
         }
       }
@@ -56,60 +57,61 @@ public class ClientEvents {
   }
 
   @SuppressWarnings("deprecation")
-  private static void createBox(MatrixStack matrixStack, double x, double y, double z, double offset) {
+  private static void createBox(PoseStack matrixStack, double x, double y, double z, double offset) {
     Minecraft mc = Minecraft.getInstance();
     RenderSystem.disableTexture();
     RenderSystem.disableBlend();
     RenderSystem.disableDepthTest();
-    RenderSystem.pushMatrix();
-    Vector3d viewPosition = mc.gameRenderer.getActiveRenderInfo().getProjectedView();
+    GameEvent test;
+//    RenderSystem.pushMatrix();
+    Vec3 viewPosition = mc.gameRenderer.getMainCamera().getPosition();
     long c = (System.currentTimeMillis() / 15L) % 360L;
     float[] color = WorldHelper.getHSBtoRGBF(c / 360f, 1f, 1f);
-    matrixStack.push();
+    matrixStack.pushPose();
     // get a closer pos if too far
-    Vector3d vec = new Vector3d(x, y, z).subtract(viewPosition);
-    if (vec.distanceTo(Vector3d.ZERO) > 200d) { // could be 300
+    Vec3 vec = new Vec3(x, y, z).subtract(viewPosition);
+    if (vec.distanceTo(Vec3.ZERO) > 200d) { // could be 300
       vec = vec.normalize().scale(200d);
       x += vec.x;
       y += vec.y;
       z += vec.z;
     }
-    x -= viewPosition.getX();
-    y -= viewPosition.getY();
-    z -= viewPosition.getZ();
-    RenderSystem.multMatrix(matrixStack.getLast().getMatrix());
-    Tessellator tessellator = Tessellator.getInstance();
-    BufferBuilder renderer = tessellator.getBuffer();
-    renderer.begin(GL11.GL_LINES, DefaultVertexFormats.POSITION);
-    RenderSystem.color4f(color[0], color[1], color[2], 1f);
+    x -= viewPosition.x();
+    y -= viewPosition.y();
+    z -= viewPosition.z();
+//    RenderSystem.multMatrix(matrixStack.last().pose()); // TODO: what is this
+    Tesselator tessellator = Tesselator.getInstance();
+    BufferBuilder renderer = tessellator.getBuilder();
+    renderer.begin(VertexFormat.Mode.LINES, DefaultVertexFormat.POSITION); // GL11.GL_LINES
+    RenderSystem.setShaderColor(color[0], color[1], color[2], 1f);
     RenderSystem.lineWidth(2.5f);
-    renderer.pos(x, y, z).endVertex();
-    renderer.pos(x + offset, y, z).endVertex();
-    renderer.pos(x, y, z).endVertex();
-    renderer.pos(x, y + offset, z).endVertex();
-    renderer.pos(x, y, z).endVertex();
-    renderer.pos(x, y, z + offset).endVertex();
-    renderer.pos(x + offset, y + offset, z + offset).endVertex();
-    renderer.pos(x, y + offset, z + offset).endVertex();
-    renderer.pos(x + offset, y + offset, z + offset).endVertex();
-    renderer.pos(x + offset, y, z + offset).endVertex();
-    renderer.pos(x + offset, y + offset, z + offset).endVertex();
-    renderer.pos(x + offset, y + offset, z).endVertex();
-    renderer.pos(x, y + offset, z).endVertex();
-    renderer.pos(x, y + offset, z + offset).endVertex();
-    renderer.pos(x, y + offset, z).endVertex();
-    renderer.pos(x + offset, y + offset, z).endVertex();
-    renderer.pos(x + offset, y, z).endVertex();
-    renderer.pos(x + offset, y, z + offset).endVertex();
-    renderer.pos(x + offset, y, z).endVertex();
-    renderer.pos(x + offset, y + offset, z).endVertex();
-    renderer.pos(x, y, z + offset).endVertex();
-    renderer.pos(x + offset, y, z + offset).endVertex();
-    renderer.pos(x, y, z + offset).endVertex();
-    renderer.pos(x, y + offset, z + offset).endVertex();
-    tessellator.draw();
-    matrixStack.pop();
-    RenderSystem.popMatrix();
+    renderer.vertex(x, y, z).endVertex();
+    renderer.vertex(x + offset, y, z).endVertex();
+    renderer.vertex(x, y, z).endVertex();
+    renderer.vertex(x, y + offset, z).endVertex();
+    renderer.vertex(x, y, z).endVertex();
+    renderer.vertex(x, y, z + offset).endVertex();
+    renderer.vertex(x + offset, y + offset, z + offset).endVertex();
+    renderer.vertex(x, y + offset, z + offset).endVertex();
+    renderer.vertex(x + offset, y + offset, z + offset).endVertex();
+    renderer.vertex(x + offset, y, z + offset).endVertex();
+    renderer.vertex(x + offset, y + offset, z + offset).endVertex();
+    renderer.vertex(x + offset, y + offset, z).endVertex();
+    renderer.vertex(x, y + offset, z).endVertex();
+    renderer.vertex(x, y + offset, z + offset).endVertex();
+    renderer.vertex(x, y + offset, z).endVertex();
+    renderer.vertex(x + offset, y + offset, z).endVertex();
+    renderer.vertex(x + offset, y, z).endVertex();
+    renderer.vertex(x + offset, y, z + offset).endVertex();
+    renderer.vertex(x + offset, y, z).endVertex();
+    renderer.vertex(x + offset, y + offset, z).endVertex();
+    renderer.vertex(x, y, z + offset).endVertex();
+    renderer.vertex(x + offset, y, z + offset).endVertex();
+    renderer.vertex(x, y, z + offset).endVertex();
+    renderer.vertex(x, y + offset, z + offset).endVertex();
+    tessellator.end();
+    matrixStack.popPose();
+//    RenderSystem.popMatrix();
     RenderSystem.lineWidth(1f);
     RenderSystem.enableDepthTest();
     RenderSystem.enableBlend();

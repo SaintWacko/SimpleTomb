@@ -1,11 +1,11 @@
 package com.lothrazar.simpletomb.data;
 
 import com.lothrazar.simpletomb.ModTomb;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.util.text.ITextComponent;
-import net.minecraft.util.text.Style;
-import net.minecraft.util.text.TextFormatting;
-import net.minecraft.util.text.TranslationTextComponent;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.Style;
+import net.minecraft.ChatFormatting;
+import net.minecraft.network.chat.TranslatableComponent;
 
 public enum MessageType {
 
@@ -21,7 +21,7 @@ public enum MessageType {
 
   public static final Style MESSAGE_SPECIAL;
   static {
-    MESSAGE_SPECIAL = Style.EMPTY.setFormatting(TextFormatting.GOLD);
+    MESSAGE_SPECIAL = Style.EMPTY.withColor(ChatFormatting.GOLD);
   }
   private final String key;
 
@@ -33,16 +33,16 @@ public enum MessageType {
     return ModTomb.MODID + "." + this.key;
   }
 
-  public ITextComponent getTranslationWithStyle(Style style, Object... params) {
-    return new TranslationTextComponent(getKey(), params).setStyle(style);
+  public Component getTranslationWithStyle(Style style, Object... params) {
+    return new TranslatableComponent(getKey(), params).setStyle(style);
   }
 
   public String getTranslation(Object... params) {
-    return new TranslationTextComponent(getKey(), params).getString();
+    return new TranslatableComponent(getKey(), params).getString();
   }
 
-  public void sendSpecialMessage(PlayerEntity sender, Object... params) {
+  public void sendSpecialMessage(Player sender, Object... params) {
     // 
-    sender.sendMessage(this.getTranslationWithStyle(MESSAGE_SPECIAL, params), sender.getUniqueID());
+    sender.sendMessage(this.getTranslationWithStyle(MESSAGE_SPECIAL, params), sender.getUUID());
   }
 }

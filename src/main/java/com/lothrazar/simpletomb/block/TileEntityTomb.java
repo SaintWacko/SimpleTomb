@@ -10,19 +10,21 @@ import java.util.UUID;
 import java.util.stream.IntStream;
 import javax.annotation.Nonnull;
 import javax.annotation.Nullable;
-import net.minecraft.block.BlockState;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.inventory.InventoryHelper;
-import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.CompoundNBT;
-import net.minecraft.network.NetworkManager;
-import net.minecraft.network.play.server.SUpdateTileEntityPacket;
-import net.minecraft.tileentity.ITickableTileEntity;
-import net.minecraft.tileentity.TileEntity;
-import net.minecraft.util.Direction;
-import net.minecraft.util.SoundCategory;
-import net.minecraft.util.SoundEvents;
-import net.minecraft.util.math.AxisAlignedBB;
+
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.Containers;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.Connection;
+import net.minecraft.network.protocol.game.ClientboundBlockEntityDataPacket;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.core.Direction;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.world.phys.AABB;
 import net.minecraftforge.common.capabilities.Capability;
 import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.common.util.INBTSerializable;
@@ -32,12 +34,12 @@ import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemHandlerHelper;
 import net.minecraftforge.items.ItemStackHandler;
 
-public class TileEntityTomb extends TileEntity implements ITickableTileEntity {
+public class TileEntityTomb extends BlockEntity  {
 
   private static final int SOULTIMER = 100;
 
-  public TileEntityTomb() {
-    super(TombRegistry.TOMBSTONETILEENTITY);
+  public TileEntityTomb(BlockPos pos, BlockState blockState) {
+    super(TombRegistry.TOMBSTONETILEENTITY, pos, blockState);
   }
 
   private LazyOptional<IItemHandler> handler = LazyOptional.of(this::createHandler);
@@ -54,9 +56,9 @@ public class TileEntityTomb extends TileEntity implements ITickableTileEntity {
     return new ItemStackHandler(120);
   }
 
-  public void giveInventory(@Nullable PlayerEntity player) {
+  public void giveInventory(@Nullable Player player) {
     IItemHandler inventory = handler.orElse(null);
-    if (!this.world.isRemote && player != null && !(player instanceof FakePlayer)) {
+    if (!this.level.isClientSide && player != null && !(player instanceof FakePlayer)) {
       //
       for (int i = inventory.getSlots() - 1; i >= 0; --i) {
         if (EntityHelper.autoEquip(inventory.getStackInSlot(i), player)) {
@@ -71,8 +73,8 @@ public class TileEntityTomb extends TileEntity implements ITickableTileEntity {
         }
       });
       this.removeGraveBy(player);
-      if (player.container != null) {
-        player.container.detectAndSendChanges();
+      if (player.inventoryMenu != null) {
+        player.inventoryMenu.broadcastChanges();
       }
       MessageType.MESSAGE_OPEN_GRAVE_SUCCESS.sendSpecialMessage(player);
     }
@@ -82,21 +84,21 @@ public class TileEntityTomb extends TileEntity implements ITickableTileEntity {
     return this.onlyOwnersAccess;
   }
 
-  private void removeGraveBy(@Nullable PlayerEntity player) {
-    if (this.world != null) {
-      WorldHelper.removeNoEvent(this.world, this.pos);
+  private void removeGraveBy(@Nullable Player player) {
+    if (this.level != null) {
+      WorldHelper.removeNoEvent(this.level, this.worldPosition);
       if (player != null) {
-        this.world.playSound(player,
-            player.getPosition(),
-            SoundEvents.BLOCK_WOODEN_DOOR_CLOSE, SoundCategory.BLOCKS, 1.0F, 1.0F);
+        this.level.playSound(player,
+            player.blockPosition(),
+            SoundEvents.WOODEN_DOOR_CLOSE, SoundSource.BLOCKS, 1.0F, 1.0F);
       }
     }
   }
 
-  public void initTombstoneOwner(PlayerEntity owner) {
+  public void initTombstoneOwner(Player owner) {
     this.deathDate = System.currentTimeMillis();
     this.ownerName = owner.getDisplayName().getString();
-    this.ownerId = owner.getUniqueID();
+    this.ownerId = owner.getUUID();
   }
 
   public void initTombstoneOwner(GameProfile owner) {
@@ -105,38 +107,24 @@ public class TileEntityTomb extends TileEntity implements ITickableTileEntity {
     this.ownerId = owner.getId();
   }
 
-  public boolean isOwner(PlayerEntity owner) {
+  public boolean isOwner(Player owner) {
     if (ownerId == null || owner == null || !hasOwner()) {
       return false;
     }
     //dont match on name. id is always set anyway 
-    return this.ownerId.equals(owner.getUniqueID());
+    return this.ownerId.equals(owner.getUUID());
   }
 
   @Override
-  public AxisAlignedBB getRenderBoundingBox() {
+  public AABB getRenderBoundingBox() {
     double renderExtension = 1.0D;
-    return new AxisAlignedBB(
-        this.pos.getX() - renderExtension,
-        this.pos.getY() - renderExtension,
-        this.pos.getZ() - renderExtension,
-        this.pos.getX() + 1 + renderExtension,
-        this.pos.getY() + 1 + renderExtension,
-        this.pos.getZ() + 1 + renderExtension);
-  }
-
-  @Override
-  public void tick() {
-    this.timer++;
-    if (this.timer % SOULTIMER == 0) {
-      this.timer = 1;
-      if (this.world.isRemote) {
-        ClientUtils.produceGraveSoul(this.world, this.pos);
-      }
-    }
-    if (this.world.isRemote) {
-      ClientUtils.produceGraveSmoke(this.world, this.pos.getX(), this.pos.getY(), this.pos.getZ());
-    }
+    return new AABB(
+        this.worldPosition.getX() - renderExtension,
+        this.worldPosition.getY() - renderExtension,
+        this.worldPosition.getZ() - renderExtension,
+        this.worldPosition.getX() + 1 + renderExtension,
+        this.worldPosition.getY() + 1 + renderExtension,
+        this.worldPosition.getZ() + 1 + renderExtension);
   }
 
   String getOwnerName() {
@@ -153,34 +141,34 @@ public class TileEntityTomb extends TileEntity implements ITickableTileEntity {
 
   @SuppressWarnings("unchecked")
   @Override
-  public CompoundNBT write(CompoundNBT compound) {
+  public CompoundTag save(CompoundTag compound) {
     compound.putString("ownerName", this.ownerName);
     compound.putLong("deathDate", this.deathDate);
     compound.putInt("countTicks", this.timer);
     if (this.ownerId != null) {
-      compound.putUniqueId("ownerid", this.ownerId);
+      compound.putUUID("ownerid", this.ownerId);
     }
     handler.ifPresent(h -> {
-      CompoundNBT ct = ((INBTSerializable<CompoundNBT>) h).serializeNBT();
+      CompoundTag ct = ((INBTSerializable<CompoundTag>) h).serializeNBT();
       compound.put("inv", ct);
     });
     compound.putBoolean("onlyOwnersAccess", this.onlyOwnersAccess);
-    return super.write(compound);
+    return super.save(compound);
   }
 
   @SuppressWarnings("unchecked")
   @Override
-  public void read(BlockState bs, CompoundNBT compound) {
+  public void load(CompoundTag compound) {
     this.ownerName = compound.getString("ownerName");
     this.deathDate = compound.getLong("deathDate");
     this.timer = compound.getInt("countTicks");
-    CompoundNBT invTag = compound.getCompound("inv");
-    handler.ifPresent(h -> ((INBTSerializable<CompoundNBT>) h).deserializeNBT(invTag));
-    if (compound.hasUniqueId("ownerid")) {
-      this.ownerId = compound.getUniqueId("ownerid");
+    CompoundTag invTag = compound.getCompound("inv");
+    handler.ifPresent(h -> ((INBTSerializable<CompoundTag>) h).deserializeNBT(invTag));
+    if (compound.hasUUID("ownerid")) {
+      this.ownerId = compound.getUUID("ownerid");
     }
     this.onlyOwnersAccess = compound.getBoolean("onlyOwnersAccess");
-    super.read(bs, compound);
+    super.load(compound);
   }
 
   @Override
@@ -194,18 +182,18 @@ public class TileEntityTomb extends TileEntity implements ITickableTileEntity {
   @Override
   public void invalidateCaps() {
     IItemHandler inventory = handler.orElse(null);
-    if (this.world != null && !this.world.isRemote) {
-      if (this.world.getBlockState(this.pos).getBlock() instanceof BlockTomb) {
+    if (this.level != null && !this.level.isClientSide) {
+      if (this.level.getBlockState(this.worldPosition).getBlock() instanceof BlockTomb) {
         return;
       }
       for (int i = 0; i < inventory.getSlots(); ++i) {
         ItemStack stack = inventory.getStackInSlot(i);
         if (!stack.isEmpty()) {
-          InventoryHelper.spawnItemStack(
-              this.world,
-              this.pos.getX(),
-              this.pos.getY(),
-              this.pos.getZ(),
+          Containers.dropItemStack(
+              this.level,
+              this.worldPosition.getX(),
+              this.worldPosition.getY(),
+              this.worldPosition.getZ(),
               inventory.extractItem(i, stack.getCount(), false));
         }
       }
@@ -214,9 +202,9 @@ public class TileEntityTomb extends TileEntity implements ITickableTileEntity {
   }
 
   @Override
-  public CompoundNBT getUpdateTag() {
-    CompoundNBT compound = new CompoundNBT();
-    super.write(compound);
+  public CompoundTag getUpdateTag() {
+    CompoundTag compound = new CompoundTag();
+    super.save(compound);
     compound.putString("ownerName", this.ownerName);
     compound.putLong("deathDate", this.deathDate);
     compound.putInt("countTicks", this.timer);
@@ -224,17 +212,46 @@ public class TileEntityTomb extends TileEntity implements ITickableTileEntity {
   }
 
   @Override
-  public SUpdateTileEntityPacket getUpdatePacket() {
-    return new SUpdateTileEntityPacket(this.pos, 1, getUpdateTag());
+  public ClientboundBlockEntityDataPacket getUpdatePacket() {
+    return new ClientboundBlockEntityDataPacket(this.worldPosition, 1, getUpdateTag());
   }
 
   @Override
-  public boolean receiveClientEvent(int id, int type) {
+  public boolean triggerEvent(int id, int type) {
     return true;
   }
 
   @Override
-  public void onDataPacket(NetworkManager net, SUpdateTileEntityPacket pkt) {
-    read(this.getBlockState(), pkt.getNbtCompound());
+  public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt) {
+    load(pkt.getTag());
+  }
+
+
+  public void tick() {
+    this.timer++;
+    if (this.timer % SOULTIMER == 0) {
+      this.timer = 1;
+      if (this.level.isClientSide) {
+        ClientUtils.produceGraveSoul(this.level, this.worldPosition);
+      }
+    }
+    if (this.level.isClientSide) {
+      ClientUtils.produceGraveSmoke(this.level, this.worldPosition.getX(), this.worldPosition.getY(), this.worldPosition.getZ());
+    }
+  }
+
+  public static void clientTick(Level level, BlockPos blockPos, BlockState blockState, TileEntityTomb tile) {
+    ClientUtils.produceGraveSmoke(level, tile.worldPosition.getX(), tile.worldPosition.getY(), tile.worldPosition.getZ());
+    if (tile.timer % SOULTIMER == 0) {
+      ClientUtils.produceGraveSoul(level, tile.worldPosition);
+    }
+  }
+
+  public static <E extends BlockEntity> void serverTick(Level level, BlockPos blockPos, BlockState blockState, TileEntityTomb tile) {
+
+    tile.timer++;
+    if ((tile.timer-1) % SOULTIMER == 0) {
+      tile.timer = 1;
+    }
   }
 }
