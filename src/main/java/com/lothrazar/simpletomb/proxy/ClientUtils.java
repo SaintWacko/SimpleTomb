@@ -7,20 +7,21 @@ import com.lothrazar.simpletomb.particle.ParticleCasting;
 import java.util.function.Predicate;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.multiplayer.ClientLevel;
+import net.minecraft.client.renderer.blockentity.BlockEntityRenderers;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.world.level.Level;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.common.MinecraftForge;
-import net.minecraftforge.fmlclient.registry.ClientRegistry;
 
 @OnlyIn(Dist.CLIENT)
 public class ClientUtils {
 
   public static void setup() {
     MinecraftForge.EVENT_BUS.register(new ClientEvents());
-//    ClientRegistry.bindTileEntityRenderer(TombRegistry.TOMBSTONETILEENTITY, RenderTomb::new);
+    //    ClientRegistry.bindTileEntityRenderer(TombRegistry.TOMBSTONETILEENTITY, RenderTomb::new);
+    BlockEntityRenderers.register(TombRegistry.TOMBSTONETILEENTITY, RenderTomb::new);
   }
 
   public static void produceGraveSmoke(Level world, double x, double y, double z) {

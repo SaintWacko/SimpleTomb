@@ -73,4 +73,6 @@ public class TombRegistry {
     TombRegistry.SOUL.setRegistryName(ModTomb.MODID, "soul");
     r.register(TombRegistry.SOUL);
   }
+
+
 }

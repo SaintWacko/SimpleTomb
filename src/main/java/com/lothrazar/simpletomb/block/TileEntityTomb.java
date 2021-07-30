@@ -227,28 +227,29 @@ public class TileEntityTomb extends BlockEntity  {
   }
 
 
-  public void tick() {
-    this.timer++;
-    if (this.timer % SOULTIMER == 0) {
-      this.timer = 1;
-      if (this.level.isClientSide) {
-        ClientUtils.produceGraveSoul(this.level, this.worldPosition);
-      }
-    }
-    if (this.level.isClientSide) {
-      ClientUtils.produceGraveSmoke(this.level, this.worldPosition.getX(), this.worldPosition.getY(), this.worldPosition.getZ());
-    }
-  }
+//  public void tick() {
+//    this.timer++;
+//    if (this.timer % SOULTIMER == 0) {
+//      this.timer = 1;
+//      if (this.level.isClientSide) {
+//        ClientUtils.produceGraveSoul(this.level, this.worldPosition);
+//      }
+//    }
+//    if (this.level.isClientSide) {
+//      ClientUtils.produceGraveSmoke(this.level, this.worldPosition.getX(), this.worldPosition.getY(), this.worldPosition.getZ());
+//    }
+//  }
 
   public static void clientTick(Level level, BlockPos blockPos, BlockState blockState, TileEntityTomb tile) {
     ClientUtils.produceGraveSmoke(level, tile.worldPosition.getX(), tile.worldPosition.getY(), tile.worldPosition.getZ());
+    tile.timer++;
     if (tile.timer % SOULTIMER == 0) {
       ClientUtils.produceGraveSoul(level, tile.worldPosition);
+      tile.timer = 1;
     }
   }
 
   public static <E extends BlockEntity> void serverTick(Level level, BlockPos blockPos, BlockState blockState, TileEntityTomb tile) {
-
     tile.timer++;
     if ((tile.timer-1) % SOULTIMER == 0) {
       tile.timer = 1;
