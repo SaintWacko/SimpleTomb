@@ -1,6 +1,7 @@
 package com.lothrazar.simpletomb.helper;
 
 import javax.annotation.Nullable;
+import net.minecraft.world.InteractionHand;
 import net.minecraft.world.item.enchantment.EnchantmentHelper;
 import net.minecraft.world.item.enchantment.Enchantments;
 import net.minecraft.world.entity.Entity;
@@ -40,7 +41,10 @@ public class EntityHelper {
       }
       //
       if (player.getOffhandItem().isEmpty()) {
-        if (stack.getItem().isShield(stack, player) && player.setSlot(99, stack.copy())) {
+        if (stack.getItem().isShield(stack, player)) { // && player.setSlot(99, stack.copy())) {
+//          player.setItemInHand(InteractionHand.OFF_HAND, stack.copy());
+          player.setItemSlot(EquipmentSlot.OFFHAND, stack.copy());
+//          player.getInventory().setItem(99, stack.copy());
           return true;
         }
       }

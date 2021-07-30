@@ -7,7 +7,10 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 
+import net.minecraft.client.model.SkullModelBase;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraft.client.renderer.blockentity.BlockEntityRendererProvider;
+import net.minecraft.world.level.block.AbstractSkullBlock;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.SkullBlock;
@@ -32,11 +35,7 @@ public class RenderTomb implements BlockEntityRenderer<TileEntityTomb> {
   private final Font font;
 
   public RenderTomb(BlockEntityRendererProvider.Context cx) {
-//    this.render =    cx.getBlockRenderDispatcher();
     this.font = cx.getFont();
-  }
-  public RenderTomb(BlockEntityRenderDispatcher d) {
-//    super(d);
   }
 
   private static final String TIME_FORMAT = "HH:mm:ss";
@@ -168,10 +167,10 @@ public class RenderTomb implements BlockEntityRenderer<TileEntityTomb> {
 
   @SuppressWarnings("deprecation")
   private void renderHalloween(PoseStack matrixStack, MultiBufferSource iRenderTypeBuffer, ModelTomb graveModel, Direction facing, int light, boolean isNight) {
-    RenderSystem.enableRescaleNormal();
-    RenderSystem.pushMatrix();
-    RenderSystem.disableCull();
-    RenderSystem.enableAlphaTest();
+//    RenderSystem.enableRescaleNormal();
+
+     RenderSystem.disableCull();
+//    RenderSystem.enableAlphaTest();
     float decoX = 0.5f, decoY = 0.07f, decoZ = 0.5f;
     switch (graveModel) {
       case GRAVE_NORMAL:
@@ -204,13 +203,19 @@ public class RenderTomb implements BlockEntityRenderer<TileEntityTomb> {
       matrixStack.scale(0.2f, 0.2f, 0.2f);
       ItemStack stack = new ItemStack(isNight ? Blocks.JACK_O_LANTERN : Blocks.PUMPKIN);
       Minecraft.getInstance().getItemRenderer().render(stack, net.minecraft.client.renderer.block.model.ItemTransforms.TransformType.NONE, false, matrixStack, iRenderTypeBuffer, 15728880,
-          net.minecraft.client.renderer.texture.OverlayTexture.NO_OVERLAY, Minecraft.getInstance().getItemRenderer().getModel(stack, null, null));
+          net.minecraft.client.renderer.texture.OverlayTexture.NO_OVERLAY, Minecraft.getInstance().getItemRenderer().getModel(stack, null, null, 0));
     }
     else {
       matrixStack.scale(0.3f, 0.3f, 0.3f);
-      SkullBlockRenderer.renderSkull(null, 1f, SkullBlock.Types.SKELETON, null, 0f, matrixStack, iRenderTypeBuffer, isNight ? 0xf000f0 : light);
+
+//      SkullBlock.Type skullblock$type = ((AbstractSkullBlock)block).getType();
+//      SkullModelBase skullmodelbase = this.skullModels.get(skullblock$type);
+//      RenderType rendertype = SkullBlockRenderer.getRenderType(skullblock$type, gameprofile);
+//      SkullBlockRenderer.renderSkull((Direction)null, 180.0F, 0.0F, p_108832_, p_108833_, p_108834_, skullmodelbase, rendertype);
+      // TODO:::
+//      SkullBlockRenderer.renderSkull(null, 1f, SkullBlock.Types.SKELETON, null, 0f, matrixStack, iRenderTypeBuffer, isNight ? 0xf000f0 : light);
     }
     matrixStack.popPose();
-    RenderSystem.popMatrix();
+//    RenderSystem.popMatrix();
   }
 }

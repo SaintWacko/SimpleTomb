@@ -8,6 +8,7 @@ import com.lothrazar.simpletomb.data.MessageType;
 import com.lothrazar.simpletomb.helper.EntityHelper;
 import net.minecraft.world.level.block.BaseEntityBlock;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.RenderShape;
 import net.minecraft.world.level.block.entity.BlockEntityTicker;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockState;
@@ -42,6 +43,11 @@ public class BlockTomb extends BaseEntityBlock {
     super(properties.noOcclusion().strength(-1.0F, 3600000.0F).noDrops());
     this.graveModel = graveModel;
     this.name = graveModel.getSerializedName();
+  }
+
+  @Override
+  public RenderShape getRenderShape(BlockState bs) {
+    return RenderShape.MODEL;
   }
 
   @Override

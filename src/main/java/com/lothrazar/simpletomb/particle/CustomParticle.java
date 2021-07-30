@@ -3,6 +3,7 @@ package com.lothrazar.simpletomb.particle;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.VertexConsumer;
+import com.mojang.blaze3d.vertex.VertexFormat;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.particle.ParticleRenderType;
 import net.minecraft.client.particle.SingleQuadParticle;
@@ -40,7 +41,8 @@ abstract class CustomParticle extends SingleQuadParticle {
     RenderSystem.enableBlend();
     RenderSystem.blendFunc(GlStateManager.SourceFactor.SRC_ALPHA, GlStateManager.DestFactor.ONE_MINUS_SRC_ALPHA);
 //    RenderSystem.alphaFunc(516, 0.003921569F);
-    Tesselator.getInstance().getBuilder().begin(7, DefaultVertexFormat.PARTICLE);
+//    Tesselator.getInstance().getBuilder().begin(7, DefaultVertexFormat.PARTICLE);
+    Tesselator.getInstance().getBuilder().begin(VertexFormat.Mode.QUADS, DefaultVertexFormat.PARTICLE); // QUADS == tuess
     super.render(buffer, entityIn, partialTicks);
     Tesselator.getInstance().end();
   }
