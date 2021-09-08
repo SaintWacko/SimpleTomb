@@ -1,19 +1,10 @@
 {
   "homepage": "https://www.curseforge.com/minecraft/mc-mods/simple-tomb",
   "promos": {
-    "1.16.5-latest": "1.0.9",
-    "1.16.5-recommended": "1.0.9"
+    "1.17.1-latest": "1.0.9",
+    "1.17.1-recommended": "1.0.9"
   },
-  "1.16.5": {
-    "1.0.0": "Port to 1.16.3 and latest forge RB "
-    ,"1.0.1":"The 4 grave blocks are now infiniburn_overworld and wither_immune, and shouldn't be destroyed by other things such as tnt and creeper explosions anymore"
-	  ,"1.0.2":"Fix missing lang entry for the open_grave.need_owner message.  Prevent a new tomb spawning on top of an existing one in the same block.  Add new configs to control server log and player chat log messages when graves are created.  "
- 	  ,"1.0.3":"Feature: Grave is now able to spawn underwater.  Feature: If you die in midair, it searches for a solid block to place the grave on.  Feature: The distance from the player to search for a valid grave location is now in the config file.  When you pickup a grave, fixed issue where the item slot where the key was never gets filled.  Fix a bug where you would get 'there was nowhere to place the grave' if you died deep down in the void.  Fix a bug where graves were spawning at y=0, meaning you cannot place a block underneath it (minimum is now y=1).  New configs added to control the searching range when its looking for a grave spawn point.  New optimization feature: if the death point is a valid grave placement, it places there and does not search around. "
-  	,"1.0.4":"When there are Curios items in your gravestone, the mod now tries to equip those for you in matching curios slots"
-  	,"1.0.5":"First version of command system in place, currently you can use /simpletomb latest to find your recent tomb, in case the key is lost.  Fixed dimension name in key tooltip.  Tombstone now has a solid hitbox, so players can stand on it and build against it."
-  	,"1.0.6":"New feature: Theres a new way to open your grave, just use they key on the grave (sneak standing on it still works).  Helpful if you are in range of it but you cannot directly stand on it, for example when its down in the void or blocked in by a 1x1 bedrock space.  This comes with a config to disable the new feature. "
-  	,"1.0.7":"Fix Exception loading blockstate definition: errors in log for blockstates.  New issue tracker created.  Fix grave overwriting waterlogged or non-solid blocks (hoppers, previous graves); it can still spawn in water.   "
-  	,"1.0.8":"Mod now saves backup data for every new grave spawned.  New command /simpletomb that can restore gravestones with their items, and lost keys.  Key now deals damage similar to a Stone Sword. "
-  	,"1.0.9":"Hotfix /simpletomb command crash from 1.0.8"
+  "1.17.1": {
+    "1.0.9":"Ported"
   }
 }

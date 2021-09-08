@@ -47,7 +47,6 @@ public class ParticleGraveSmoke extends TransparentParticle {
       this.oRoll = this.roll;
       this.roll += rotIncrement;
       setAlpha(Mth.clamp(this.age < this.halfMaxAge ? this.age : this.lifetime - this.age, 0, this.halfMaxAge) * this.alphaStep);
-//      System.out.println("tick grave smoke"+this);
     }
   }
 
