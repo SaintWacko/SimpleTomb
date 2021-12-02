@@ -20,10 +20,10 @@ public class ParticleSmokeColumn extends NoRenderParticle {
   public void tick() {
     double y = this.y;
     for (int i = 0; i < 6; i++) {
-      this.level.addParticle(TombRegistry.ROTATING_SMOKE, this.x - 0.1d, y, this.z - 0.1d, 0d, 0d, 0d);
-      this.level.addParticle(TombRegistry.ROTATING_SMOKE, this.x - 0.1d, y, this.z + 0.1d, 0d, 0d, 0d);
-      this.level.addParticle(TombRegistry.ROTATING_SMOKE, this.x + 0.1d, y, this.z - 0.1d, 0d, 0d, 0d);
-      this.level.addParticle(TombRegistry.ROTATING_SMOKE, this.x + 0.1d, y, this.z + 0.1d, 0d, 0d, 0d);
+      this.level.addParticle(TombRegistry.ROTATING_SMOKE.get(), this.x - 0.1d, y, this.z - 0.1d, 0d, 0d, 0d);
+      this.level.addParticle(TombRegistry.ROTATING_SMOKE.get(), this.x - 0.1d, y, this.z + 0.1d, 0d, 0d, 0d);
+      this.level.addParticle(TombRegistry.ROTATING_SMOKE.get(), this.x + 0.1d, y, this.z - 0.1d, 0d, 0d, 0d);
+      this.level.addParticle(TombRegistry.ROTATING_SMOKE.get(), this.x + 0.1d, y, this.z + 0.1d, 0d, 0d, 0d);
       y += 0.3d;
     }
     remove();

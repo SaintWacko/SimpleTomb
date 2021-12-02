@@ -1,10 +1,11 @@
 package com.lothrazar.simpletomb.helper;
 
-import javax.annotation.Nullable;
 import com.lothrazar.simpletomb.data.LocationBlockPos;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
+
+import javax.annotation.Nullable;
 
 public class NBTHelper {
 

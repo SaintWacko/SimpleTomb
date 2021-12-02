@@ -1,7 +1,5 @@
 package com.lothrazar.simpletomb.item;
 
-import java.util.List;
-import javax.annotation.Nullable;
 import com.lothrazar.simpletomb.ConfigTomb;
 import com.lothrazar.simpletomb.TombRegistry;
 import com.lothrazar.simpletomb.block.BlockTomb;
@@ -35,6 +33,9 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 
+import javax.annotation.Nullable;
+import java.util.List;
+
 public class GraveKeyItem extends SwordItem {
 
   private static final String TOMB_POS = "tombPos";
@@ -51,11 +52,10 @@ public class GraveKeyItem extends SwordItem {
 
   @Override
   public void onUsingTick(ItemStack stack, LivingEntity entity, int timeLeft) {
-    if (entity instanceof Player) {
-      Player player = (Player) entity;
+    if (entity instanceof Player player) {
       LocationBlockPos location = this.getTombPos(stack);
       if (location == null || location.isOrigin()
-          || location.dim.equalsIgnoreCase(WorldHelper.dimensionToString(player.level)) == false) {
+          || !location.dim.equalsIgnoreCase(WorldHelper.dimensionToString(player.level))) {
         return;
       }
       double distance = location.getDistance(player.blockPosition());
@@ -92,7 +92,7 @@ public class GraveKeyItem extends SwordItem {
     if (ConfigTomb.KEYOPENONUSE.get()) {
       BlockPos pos = context.getClickedPos();
       Player player = context.getPlayer();
-      if (player.getItemInHand(context.getHand()).getItem() == TombRegistry.GRAVE_KEY) {
+      if (player.getItemInHand(context.getHand()).getItem() == TombRegistry.GRAVE_KEY.get()) {
         BlockState state = context.getLevel().getBlockState(pos);
         if (state.getBlock() instanceof BlockTomb) {
           //open me
@@ -156,8 +156,8 @@ public class GraveKeyItem extends SwordItem {
     if (itemHandler != null) {
       for (int i = 0; i < itemHandler.getSlots(); ++i) {
         ItemStack stack = itemHandler.getStackInSlot(i);
-        if (stack.getItem() == TombRegistry.GRAVE_KEY &&
-            TombRegistry.GRAVE_KEY.getTombPos(stack).equals(graveLoc)) {
+        if (stack.getItem() == TombRegistry.GRAVE_KEY.get() &&
+            TombRegistry.GRAVE_KEY.get().getTombPos(stack).equals(graveLoc)) {
           itemHandler.extractItem(i, 1, false);
           return true;
         }
@@ -171,7 +171,7 @@ public class GraveKeyItem extends SwordItem {
    */
   public int countKeyInInventory(Player player) {
     return (int) player.getInventory().items.stream()
-        .filter(stack -> stack.getItem() == TombRegistry.GRAVE_KEY)
+        .filter(stack -> stack.getItem() == TombRegistry.GRAVE_KEY.get())
         .count();
   }
 }

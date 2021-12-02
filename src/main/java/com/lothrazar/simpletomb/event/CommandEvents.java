@@ -1,10 +1,8 @@
 package com.lothrazar.simpletomb.event;
 
-import java.util.List;
-import java.util.concurrent.CompletableFuture;
 import com.lothrazar.simpletomb.ModTomb;
 import com.lothrazar.simpletomb.TombRegistry;
-import com.lothrazar.simpletomb.block.TileEntityTomb;
+import com.lothrazar.simpletomb.block.BlockEntityTomb;
 import com.lothrazar.simpletomb.data.LocationBlockPos;
 import com.lothrazar.simpletomb.data.PlayerTombRecords;
 import com.lothrazar.simpletomb.data.TombCommands;
@@ -40,6 +38,9 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemHandlerHelper;
+
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 public class CommandEvents {
 
@@ -128,8 +129,8 @@ public class CommandEvents {
         return 1;
       }
       LocationBlockPos spawnPos = new LocationBlockPos(PlayerTombRecords.getPos(grave), PlayerTombRecords.getDim(grave));
-      ItemStack key = new ItemStack(TombRegistry.GRAVE_KEY);
-      TombRegistry.GRAVE_KEY.setTombPos(key, spawnPos);
+      ItemStack key = new ItemStack(TombRegistry.GRAVE_KEY.get());
+      TombRegistry.GRAVE_KEY.get().setTombPos(key, spawnPos);
       PlayerTombEvents.putKeyName(target.getName(), key);
       // key for u
       ItemHandlerHelper.giveItemToPlayer(user, key);
@@ -160,7 +161,7 @@ public class CommandEvents {
       boolean wasPlaced = WorldHelper.placeGrave(targetWorld, pos, state);
       if (wasPlaced) {
         //fill it up
-        TileEntityTomb tile = (TileEntityTomb) targetWorld.getBlockEntity(pos);
+        BlockEntityTomb tile = (BlockEntityTomb) targetWorld.getBlockEntity(pos);
         tile.initTombstoneOwner(target);
         IItemHandler itemHandler = tile.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null).orElse(null);
         //        ItemHandlerHelper.ins

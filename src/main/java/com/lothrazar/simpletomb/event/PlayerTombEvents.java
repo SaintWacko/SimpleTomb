@@ -1,21 +1,10 @@
 package com.lothrazar.simpletomb.event;
 
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
-import org.apache.logging.log4j.Level;
 import com.lothrazar.simpletomb.ConfigTomb;
 import com.lothrazar.simpletomb.ModTomb;
 import com.lothrazar.simpletomb.TombRegistry;
+import com.lothrazar.simpletomb.block.BlockEntityTomb;
 import com.lothrazar.simpletomb.block.BlockTomb;
-import com.lothrazar.simpletomb.block.TileEntityTomb;
 import com.lothrazar.simpletomb.data.DeathHelper;
 import com.lothrazar.simpletomb.data.LocationBlockPos;
 import com.lothrazar.simpletomb.data.MessageType;
@@ -48,6 +37,18 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemHandlerHelper;
+import org.apache.logging.log4j.Level;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
 
 public class PlayerTombEvents {
 
@@ -206,7 +207,7 @@ public class PlayerTombEvents {
         ItemStack stack = entityItem.getItem();
         //        stuff.add(stack);
         drops.add(stack.save(new CompoundTag()));
-        if (stack.getItem() != TombRegistry.GRAVE_KEY) {
+        if (stack.getItem() != TombRegistry.GRAVE_KEY.get()) {
           isEmpty = false;
         }
       }
@@ -241,7 +242,7 @@ public class PlayerTombEvents {
       ItemEntity entityItem = it.next();
       if (entityItem != null && !entityItem.getItem().isEmpty()) {
         ItemStack stack = entityItem.getItem();
-        if (stack.getItem() == TombRegistry.GRAVE_KEY) {
+        if (stack.getItem() == TombRegistry.GRAVE_KEY.get()) {
           keys.add(stack.copy());
           it.remove();
         }
@@ -271,18 +272,18 @@ public class PlayerTombEvents {
     }
     BlockEntity tile = world.getBlockEntity(spawnPos.toBlockPos());
     IItemHandler itemHandler = tile.getCapability(CapabilityItemHandler.ITEM_HANDLER_CAPABILITY, null).orElse(null);
-    if (!(tile instanceof TileEntityTomb)
+    if (!(tile instanceof BlockEntityTomb)
         || itemHandler == null) {
       //either block failed to place, or tile entity wasnt started somehow
       sendFailMessage(player);
       return;
     }
     //else grave success
-    TileEntityTomb grave = (TileEntityTomb) tile;
+    BlockEntityTomb grave = (BlockEntityTomb) tile;
     grave.initTombstoneOwner(player);
     if (ConfigTomb.KEYGIVEN.get()) {
-      ItemStack key = new ItemStack(TombRegistry.GRAVE_KEY);
-      TombRegistry.GRAVE_KEY.setTombPos(key, spawnPos);
+      ItemStack key = new ItemStack(TombRegistry.GRAVE_KEY.get());
+      TombRegistry.GRAVE_KEY.get().setTombPos(key, spawnPos);
       setKeyName(player, key);
       keys.add(key);
     }
@@ -333,10 +334,10 @@ public class PlayerTombEvents {
   static BlockState getRandomGrave(ServerLevel world, Direction facing) {
     //TODO: CONFIG or other selection of what the player wants
     BlockTomb[] graves = new BlockTomb[] {
-        TombRegistry.GRAVE_SIMPLE,
-        TombRegistry.GRAVE_NORMAL,
-        TombRegistry.GRAVE_CROSS,
-        TombRegistry.TOMBSTONE,
+        TombRegistry.GRAVE_SIMPLE.get(),
+        TombRegistry.GRAVE_NORMAL.get(),
+        TombRegistry.GRAVE_CROSS.get(),
+        TombRegistry.TOMBSTONE.get(),
     };
     BlockState state = graves[world.random.nextInt(graves.length)].defaultBlockState();
     state = state.setValue(BlockTomb.FACING, facing);

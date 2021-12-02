@@ -28,7 +28,6 @@ import net.minecraft.world.level.block.state.properties.EnumProperty;
 import net.minecraft.world.level.block.state.properties.IntegerProperty;
 import net.minecraft.world.phys.shapes.CollisionContext;
 import net.minecraft.world.phys.shapes.VoxelShape;
-import net.minecraftforge.common.ToolType;
 
 public class BlockTomb extends BaseEntityBlock {
 
@@ -64,10 +63,10 @@ public class BlockTomb extends BaseEntityBlock {
     return ModTomb.MODID + ".grave." + this.name;
   }
 
-  @Override
-  public boolean isToolEffective(BlockState state, ToolType tool) {
-    return false;
-  }
+//  @Override
+//  public boolean isToolEffective(BlockState state, ToolType tool) { TODO: See if there's a replacement
+//    return false;
+//  }
 
   @Override
   public boolean dropFromExplosion(Explosion explosionIn) {
@@ -75,23 +74,23 @@ public class BlockTomb extends BaseEntityBlock {
   }
 
   @Override
-  public void onBlockExploded(BlockState state, Level world, BlockPos pos, Explosion explosion) {
-    //  dont destroy/setair  super.onBlockExploded(state, world, pos, explosion);
+  public void onBlockExploded(BlockState state, Level level, BlockPos pos, Explosion explosion) {
+    //  dont destroy/setair  super.onBlockExploded(state, level, pos, explosion);
   }
 
-  public static TileEntityTomb getTileEntity(Level world, BlockPos pos) {
-    BlockEntity tile = world.getBlockEntity(pos);
-    return tile instanceof TileEntityTomb ? (TileEntityTomb) tile : null;
+  public static BlockEntityTomb getBlockEntity(Level level, BlockPos pos) {
+    BlockEntity blockEntity = level.getBlockEntity(pos);
+    return blockEntity instanceof BlockEntityTomb ? (BlockEntityTomb) blockEntity : null;
   }
 
   @Override
   public BlockEntity newBlockEntity(BlockPos pos, BlockState state) {
-    return new TileEntityTomb(pos, state);
+    return new BlockEntityTomb(pos, state);
   }
 
   @Override
-  public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level world, BlockState state, BlockEntityType<T> type) {
-    return createTickerHelper(type, TombRegistry.TOMBSTONETILEENTITY, world.isClientSide ? TileEntityTomb::clientTick : TileEntityTomb::serverTick);
+  public <T extends BlockEntity> BlockEntityTicker<T> getTicker(Level level, BlockState state, BlockEntityType<T> type) {
+    return createTickerHelper(type, TombRegistry.TOMBSTONE_BLOCK_ENTITY.get(), level.isClientSide ? BlockEntityTomb::clientTick : BlockEntityTomb::serverTick);
   }
 
   @Override
@@ -100,15 +99,15 @@ public class BlockTomb extends BaseEntityBlock {
   }
 
   @Override
-  public void entityInside(BlockState state, Level world, BlockPos pos, Entity entity) {
-    if (!world.isClientSide && entity.isShiftKeyDown() && entity.isAlive() &&
+  public void entityInside(BlockState state, Level level, BlockPos pos, Entity entity) {
+    if (!level.isClientSide && entity.isShiftKeyDown() && entity.isAlive() &&
         EntityHelper.isValidPlayer(entity)) {
-      activatePlayerGrave(world, pos, state, (ServerPlayer) entity);
+      activatePlayerGrave(level, pos, state, (ServerPlayer) entity);
     }
   }
 
-  public static void activatePlayerGrave(Level world, BlockPos pos, BlockState state, Player player) {
-    TileEntityTomb tile = BlockTomb.getTileEntity(world, pos);
+  public static void activatePlayerGrave(Level level, BlockPos pos, BlockState state, Player player) {
+    BlockEntityTomb tile = BlockTomb.getBlockEntity(level, pos);
     if (tile != null && player.isAlive()) {
       if (tile.onlyOwnersCanAccess() && !tile.isOwner(player)) {
         MessageType.MESSAGE_OPEN_GRAVE_NEED_OWNER.sendSpecialMessage(player);
@@ -118,7 +117,7 @@ public class BlockTomb extends BaseEntityBlock {
       tile.giveInventory(player);
       //clear saved loc
       DeathHelper.INSTANCE.deleteLastGrave(player);
-      TombRegistry.GRAVE_KEY.removeKeyForGraveInInventory(player, new LocationBlockPos(pos, world));
+      TombRegistry.GRAVE_KEY.get().removeKeyForGraveInInventory(player, new LocationBlockPos(pos, level));
     }
   }
 }

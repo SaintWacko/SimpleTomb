@@ -22,7 +22,7 @@ import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.client.event.ParticleFactoryRegisterEvent;
-import net.minecraftforge.client.event.RenderWorldLastEvent;
+import net.minecraftforge.client.event.RenderLevelLastEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
@@ -34,23 +34,23 @@ public class ClientEvents {
   @SubscribeEvent(priority = EventPriority.LOW)
   public static void registerParticleFactories(ParticleFactoryRegisterEvent event) {
     ParticleEngine r = Minecraft.getInstance().particleEngine;
-    r.register(TombRegistry.GRAVE_SMOKE, ParticleGraveSmoke.Factory::new);
-    r.register(TombRegistry.ROTATING_SMOKE, ParticleRotatingSmoke.Factory::new);
-    r.register(TombRegistry.SOUL, ParticleGraveSoul.Factory::new);
+    r.register(TombRegistry.GRAVE_SMOKE.get(), ParticleGraveSmoke.Factory::new);
+    r.register(TombRegistry.ROTATING_SMOKE.get(), ParticleRotatingSmoke.Factory::new);
+    r.register(TombRegistry.SOUL.get(), ParticleGraveSoul.Factory::new);
   }
 
   @SubscribeEvent
-  public void render(RenderWorldLastEvent event) {
+  public void render(RenderLevelLastEvent event) {
     LocalPlayer player = Minecraft.getInstance().player;
     if (player != null && player.level != null) {
       ItemStack stack = player.getMainHandItem();
-      if (stack.getItem() == TombRegistry.GRAVE_KEY) {
+      if (stack.getItem() == TombRegistry.GRAVE_KEY.get()) {
         MultiBufferSource.BufferSource bufferSource = Minecraft.getInstance().renderBuffers().bufferSource();
-        LocationBlockPos location = TombRegistry.GRAVE_KEY.getTombPos(stack);
+        LocationBlockPos location = TombRegistry.GRAVE_KEY.get().getTombPos(stack);
         if (location != null && !location.isOrigin() &&
             location.dim.equalsIgnoreCase(WorldHelper.dimensionToString(player.level)) &&
             player.level.isInWorldBounds(location.toBlockPos())) {
-              PoseStack poseStack = event.getMatrixStack();
+              PoseStack poseStack = event.getPoseStack();
               poseStack.pushPose();
               createBox(bufferSource, poseStack, location.x, location.y, location.z, 1.0F);
               poseStack.popPose();

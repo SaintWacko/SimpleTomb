@@ -1,9 +1,5 @@
 package com.lothrazar.simpletomb.block;
 
-import java.util.UUID;
-import java.util.stream.IntStream;
-import javax.annotation.Nonnull;
-import javax.annotation.Nullable;
 import com.lothrazar.simpletomb.TombRegistry;
 import com.lothrazar.simpletomb.data.MessageType;
 import com.lothrazar.simpletomb.helper.EntityHelper;
@@ -33,12 +29,17 @@ import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemHandlerHelper;
 import net.minecraftforge.items.ItemStackHandler;
 
-public class TileEntityTomb extends BlockEntity {
+import javax.annotation.Nonnull;
+import javax.annotation.Nullable;
+import java.util.UUID;
+import java.util.stream.IntStream;
+
+public class BlockEntityTomb extends BlockEntity {
 
   private static final int SOULTIMER = 100;
 
-  public TileEntityTomb(BlockPos pos, BlockState blockState) {
-    super(TombRegistry.TOMBSTONETILEENTITY, pos, blockState);
+  public BlockEntityTomb(BlockPos pos, BlockState blockState) {
+    super(TombRegistry.TOMBSTONE_BLOCK_ENTITY.get(), pos, blockState);
   }
 
   private LazyOptional<IItemHandler> handler = LazyOptional.of(this::createHandler);
@@ -212,7 +213,7 @@ public class TileEntityTomb extends BlockEntity {
 
   @Override
   public ClientboundBlockEntityDataPacket getUpdatePacket() {
-    return new ClientboundBlockEntityDataPacket(this.worldPosition, 1, getUpdateTag());
+    return ClientboundBlockEntityDataPacket.create(this);
   }
 
   @Override
@@ -237,7 +238,7 @@ public class TileEntityTomb extends BlockEntity {
   //    }
   //  }
 
-  public static void clientTick(Level level, BlockPos blockPos, BlockState blockState, TileEntityTomb tile) {
+  public static void clientTick(Level level, BlockPos blockPos, BlockState blockState, BlockEntityTomb tile) {
     ClientUtils.produceGraveSmoke(level, tile.worldPosition.getX(), tile.worldPosition.getY(), tile.worldPosition.getZ());
     tile.timer++;
     if (tile.timer % SOULTIMER == 0) {
@@ -246,7 +247,7 @@ public class TileEntityTomb extends BlockEntity {
     }
   }
 
-  public static <E extends BlockEntity> void serverTick(Level level, BlockPos blockPos, BlockState blockState, TileEntityTomb tile) {
+  public static <E extends BlockEntity> void serverTick(Level level, BlockPos blockPos, BlockState blockState, BlockEntityTomb tile) {
     tile.timer++;
     if ((tile.timer - 1) % SOULTIMER == 0) {
       tile.timer = 1;

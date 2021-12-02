@@ -1,8 +1,5 @@
 package com.lothrazar.simpletomb.helper;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
 import com.lothrazar.simpletomb.ConfigTomb;
 import com.lothrazar.simpletomb.data.LocationBlockPos;
 import net.minecraft.core.BlockPos;
@@ -13,27 +10,31 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.border.WorldBorder;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Random;
+
 public class WorldHelper {
 
   public static float getRandom(Random rand, double min, double max) {
     return (float) (rand.nextDouble() * (max - min) + min);
   }
 
-  public static String dimensionToString(Level w) {
+  public static String dimensionToString(Level level) {
     //example: returns "minecraft:overworld" resource location
-    return w.dimension().location().toString();
+    return level.dimension().location().toString();
   }
 
-  public static boolean isValidPlacement(Level world, BlockPos myPos) {
+  public static boolean isValidPlacement(Level level, BlockPos myPos) {
     //0 is the bottom bedrock level
     //so if we place there, players cant place a block under it to stand safely
-    if (myPos.getY() < 1 || world.isOutsideBuildHeight(myPos)) {
+    if (myPos.getY() < 1 || level.isOutsideBuildHeight(myPos)) {
       // blockstate doesnt matter, out of world
       return false;
     }
     //    FluidState fluidHere = world.getFluidState(myPos);
     //only air or water. not any fluid state, and not any waterlogged block
-    BlockState blockState = world.getBlockState(myPos);
+    BlockState blockState = level.getBlockState(myPos);
     return blockState.getBlock() == Blocks.AIR || blockState.getBlock() == Blocks.WATER; // && fluidHere.getFluid().isIn(FluidTags.WATER));
   }
 
@@ -41,13 +42,13 @@ public class WorldHelper {
     final int xRange = ConfigTomb.HSEARCHRANGE.get();
     final int yRange = ConfigTomb.VSEARCHRANGE.get();
     final int zRange = ConfigTomb.HSEARCHRANGE.get();
-    Level world = player.level;
+    Level level = player.level;
     //   
     //shortcut: if the death position is valid AND solid base. JUST DO THAT dont even search
     if (isValidPlacement(player.level, initPos)
         && isValidSolid(player.level, initPos)) {
       //      ModTomb.LOGGER.info(" initPos is enough =  " + initPos);
-      return new LocationBlockPos(initPos, world);
+      return new LocationBlockPos(initPos, level);
     }
     //
     //    ModTomb.LOGGER.info(isValidINIT + "find initPos=  " + initPos);
@@ -58,13 +59,13 @@ public class WorldHelper {
         for (int z = initPos.getZ() - zRange; z < initPos.getZ() + zRange; z++) {
           BlockPos myPos = new BlockPos(x, y, z);
           //
-          boolean isValid = isValidPlacement(world, myPos);
+          boolean isValid = isValidPlacement(level, myPos);
           //          ModTomb.LOGGER.info("isvalid  initPos=  " + isValid);
           if (!isValid) {
             continue;
           }
           //where do we put this
-          if (isValidSolid(world, myPos)) {
+          if (isValidSolid(level, myPos)) {
             //this is better
             positionsWithSolidBelow.add(myPos);
           }
@@ -89,11 +90,11 @@ public class WorldHelper {
     else {
       return null;
     }
-    return new LocationBlockPos(found, world);
+    return new LocationBlockPos(found, level);
   }
 
-  private static boolean isValidSolid(Level world, BlockPos myPos) {
-    return world.getBlockState(myPos.below()).canOcclude();
+  private static boolean isValidSolid(Level level, BlockPos myPos) {
+    return level.getBlockState(myPos.below()).canOcclude();
   }
 
   private static void sortByDistance(final BlockPos initPos, List<BlockPos> positions) {
@@ -104,10 +105,10 @@ public class WorldHelper {
     });
   }
 
-  public static BlockPos getInitialPos(Level world, BlockPos pos) {
-    WorldBorder border = world.getWorldBorder();
+  public static BlockPos getInitialPos(Level level, BlockPos pos) {
+    WorldBorder border = level.getWorldBorder();
     boolean validXZ = border.isWithinBounds(pos);
-    boolean validY = !world.isOutsideBuildHeight(pos);
+    boolean validY = !level.isOutsideBuildHeight(pos);
     if (validXZ && validY) {
       return pos;
     }
@@ -123,8 +124,8 @@ public class WorldHelper {
         if (y < 1) {
           y = 1;
         }
-        if (y > world.getMaxBuildHeight()) {
-          y = world.getMaxBuildHeight() - 1;
+        if (y > level.getMaxBuildHeight()) {
+          y = level.getMaxBuildHeight() - 1;
         }
       }
       return new BlockPos(x, y, z);
@@ -135,20 +136,20 @@ public class WorldHelper {
     return isRuleKeepInventory(player.level);
   }
 
-  public static boolean isRuleKeepInventory(Level world) {
-    return world.getGameRules().getBoolean(GameRules.RULE_KEEPINVENTORY);
+  public static boolean isRuleKeepInventory(Level level) {
+    return level.getGameRules().getBoolean(GameRules.RULE_KEEPINVENTORY);
   }
 
-  public static void removeNoEvent(Level world, BlockPos pos) {
-    world.setBlock(pos, Blocks.AIR.defaultBlockState(), 3);
+  public static void removeNoEvent(Level level, BlockPos pos) {
+    level.setBlock(pos, Blocks.AIR.defaultBlockState(), 3);
   }
 
-  public static boolean placeGrave(Level world, BlockPos pos, BlockState state) {
-    return world.setBlock(pos, state, 2);
+  public static boolean placeGrave(Level level, BlockPos pos, BlockState state) {
+    return level.setBlock(pos, state, 2);
   }
 
-  public static boolean isNight(Level world) {
-    float angle = world.getSunAngle(0.0F);
+  public static boolean isNight(Level level) {
+    float angle = level.getSunAngle(0.0F);
     return angle >= 0.245F && angle <= 0.755F;
   }
 

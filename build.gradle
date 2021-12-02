@@ -14,7 +14,6 @@ apply plugin: 'net.minecraftforge.gradle'
 apply plugin: 'eclipse'
 apply plugin: 'maven-publish'
 apply plugin: 'checkstyle'
-apply from: 'https://raw.githubusercontent.com/SizableShrimp/Forge-Class-Remapper/main/classremapper.gradle'
 
 import net.minecraftforge.gradle.common.tasks.SignJar
 import groovy.json.JsonSlurper
@@ -24,7 +23,7 @@ version = "${mc_version}-${mod_version}"
 group = 'com.lothrazar.simpletomb'
 archivesBaseName = 'simpletomb'
 
-java.toolchain.languageVersion = JavaLanguageVersion.of(16)
+java.toolchain.languageVersion = JavaLanguageVersion.of(17)
 
 checkstyle {
     toolVersion '8.23'
@@ -35,7 +34,7 @@ checkstyleMain {
 }
 
 minecraft {
- mappings channel: 'official', version: '1.17.1'
+    mappings  channel: "${mcp_channel}", version: "${mcp_mappings}"
     //makeObfSourceJar = false // an Srg named sources jar is made by default. uncomment this to disable.
     
     // accessTransformer = file('build/resources/main/META-INF/accesstransformer.cfg')
@@ -129,19 +128,24 @@ dependencies {
 
 }
 repositories {
-  maven { url 'https://www.cursemaven.com'  } 
   maven {
-    // location of the maven that hosts JEI files
-    name = "Progwml6 maven"
-    url = "https://dvs1.progwml6.com/files/maven/"
+      url = 'https://www.cursemaven.com'
+      content {
+          includeGroup "curse.maven"
+      }
   }
+//  maven {
+//    // location of the maven that hosts JEI files
+//    name = "Progwml6 maven"
+//    url = "https://dvs1.progwml6.com/files/maven/"
+//  }
+//  maven {
+//    // location of a maven mirror for JEI files, as a fallback
+//    name = "ModMaven"
+//    url = "https://modmaven.k-4u.nl"
+//  }
   maven {
-    // location of a maven mirror for JEI files, as a fallback
-    name = "ModMaven"
-    url = "https://modmaven.k-4u.nl"
-  }
-  maven {
-    url = "https://maven.theillusivec4.top/"
+      url = "https://maven.theillusivec4.top/"
   }
 
 }

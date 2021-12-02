@@ -1,7 +1,5 @@
 package com.lothrazar.simpletomb.block;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import com.lothrazar.simpletomb.data.MessageType;
 import com.lothrazar.simpletomb.helper.WorldHelper;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -21,8 +19,11 @@ import net.minecraft.world.level.block.state.BlockState;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
 
+import java.text.SimpleDateFormat;
+import java.util.Date;
+
 @OnlyIn(Dist.CLIENT)
-public class RenderTomb implements BlockEntityRenderer<TileEntityTomb> {
+public class RenderTomb implements BlockEntityRenderer<BlockEntityTomb> {
 
   private static final ResourceLocation SKELETON_HEAD = new ResourceLocation("minecraft", "textures/entity/skeleton/skeleton.png");
   private final Font font;
@@ -35,8 +36,8 @@ public class RenderTomb implements BlockEntityRenderer<TileEntityTomb> {
   private static final String DATE_FORMAT = "yyyy/MM/dd";
 
   @Override
-  public void render(TileEntityTomb te, float partialTicks, PoseStack matrixStack,
-      MultiBufferSource iRenderTypeBuffer, int light, int destroyStage) {
+  public void render(BlockEntityTomb te, float partialTicks, PoseStack matrixStack,
+					 MultiBufferSource iRenderTypeBuffer, int light, int destroyStage) {
     if (te == null) {
       return;
     }
