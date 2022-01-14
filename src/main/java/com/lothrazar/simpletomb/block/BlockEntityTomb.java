@@ -142,6 +142,13 @@ public class BlockEntityTomb extends BlockEntity {
   @SuppressWarnings("unchecked")
   @Override
   public CompoundTag save(CompoundTag compound) {
+    saveAdditional(compound);
+    return super.save(compound);
+  }
+
+  @Override
+  public void saveAdditional(CompoundTag compound) {
+    super.saveAdditional(compound);
     compound.putString("ownerName", this.ownerName);
     compound.putLong("deathDate", this.deathDate);
     compound.putInt("countTicks", this.timer);
@@ -153,7 +160,6 @@ public class BlockEntityTomb extends BlockEntity {
       compound.put("inv", ct);
     });
     compound.putBoolean("onlyOwnersAccess", this.onlyOwnersAccess);
-    return super.save(compound);
   }
 
   @SuppressWarnings("unchecked")
@@ -204,7 +210,7 @@ public class BlockEntityTomb extends BlockEntity {
   @Override
   public CompoundTag getUpdateTag() {
     CompoundTag compound = new CompoundTag();
-    super.save(compound);
+    super.saveAdditional(compound);
     compound.putString("ownerName", this.ownerName);
     compound.putLong("deathDate", this.deathDate);
     compound.putInt("countTicks", this.timer);

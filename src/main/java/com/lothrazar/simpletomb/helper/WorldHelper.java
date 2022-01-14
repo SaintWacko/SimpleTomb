@@ -101,7 +101,7 @@ public class WorldHelper {
     positions.sort((pos0, pos1) -> {
       double dist0 = Math.sqrt(pos0.distSqr(initPos));
       double dist1 = Math.sqrt(pos1.distSqr(initPos));
-      return Double.valueOf(dist0).compareTo(dist1);
+      return Double.compare(dist0, dist1);
     });
   }
 
