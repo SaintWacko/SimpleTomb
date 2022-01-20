@@ -139,13 +139,6 @@ public class BlockEntityTomb extends BlockEntity {
     return this.deathDate;
   }
 
-  @SuppressWarnings("unchecked")
-  @Override
-  public CompoundTag save(CompoundTag compound) {
-    saveAdditional(compound);
-    return super.save(compound);
-  }
-
   @Override
   public void saveAdditional(CompoundTag compound) {
     super.saveAdditional(compound);
@@ -231,18 +224,6 @@ public class BlockEntityTomb extends BlockEntity {
   public void onDataPacket(Connection net, ClientboundBlockEntityDataPacket pkt) {
     load(pkt.getTag());
   }
-  //  public void tick() {
-  //    this.timer++;
-  //    if (this.timer % SOULTIMER == 0) {
-  //      this.timer = 1;
-  //      if (this.level.isClientSide) {
-  //        ClientUtils.produceGraveSoul(this.level, this.worldPosition);
-  //      }
-  //    }
-  //    if (this.level.isClientSide) {
-  //      ClientUtils.produceGraveSmoke(this.level, this.worldPosition.getX(), this.worldPosition.getY(), this.worldPosition.getZ());
-  //    }
-  //  }
 
   public static void clientTick(Level level, BlockPos blockPos, BlockState blockState, BlockEntityTomb tile) {
     ClientUtils.produceGraveSmoke(level, tile.worldPosition.getX(), tile.worldPosition.getY(), tile.worldPosition.getZ());
@@ -250,6 +231,9 @@ public class BlockEntityTomb extends BlockEntity {
     if (tile.timer % SOULTIMER == 0) {
       ClientUtils.produceGraveSoul(level, tile.worldPosition);
       tile.timer = 1;
+    }
+    if (level.isClientSide) {
+      ClientUtils.produceGraveSmoke(level, blockPos.getX(), blockPos.getY(), blockPos.getZ());
     }
   }
 
