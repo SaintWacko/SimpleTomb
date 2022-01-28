@@ -28,14 +28,14 @@ public class WorldHelper {
   public static boolean isValidPlacement(Level level, BlockPos myPos) {
     //0 is the bottom bedrock level
     //so if we place there, players cant place a block under it to stand safely
-    if (myPos.getY() < 1 || level.isOutsideBuildHeight(myPos)) {
+    if (level.isOutsideBuildHeight(myPos)) {
       // blockstate doesnt matter, out of world
       return false;
     }
     //    FluidState fluidHere = world.getFluidState(myPos);
     //only air or water. not any fluid state, and not any waterlogged block
     BlockState blockState = level.getBlockState(myPos);
-    return blockState.getBlock() == Blocks.AIR || blockState.getBlock() == Blocks.WATER; // && fluidHere.getFluid().isIn(FluidTags.WATER));
+    return blockState.isAir() || blockState.getBlock() == Blocks.WATER; // && fluidHere.getFluid().isIn(FluidTags.WATER));
   }
 
   public static LocationBlockPos findGraveSpawn(final Player player, final BlockPos initPos) {
