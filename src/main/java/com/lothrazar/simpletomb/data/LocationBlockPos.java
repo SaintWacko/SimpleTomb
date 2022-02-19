@@ -14,8 +14,8 @@ public class LocationBlockPos {
   //  public static final BlockPos ORIGIN_POS = new BlockPos(0, Integer.MIN_VALUE, );
   public static final LocationBlockPos ORIGIN = new LocationBlockPos(0, 0, 0, "");
 
-  public LocationBlockPos(BlockPos pos, Level world) {
-    this(pos, WorldHelper.dimensionToString(world));
+  public LocationBlockPos(BlockPos pos, Level level) {
+    this(pos, WorldHelper.dimensionToString(level));
   }
 
   public LocationBlockPos(BlockPos pos, String dim) {

@@ -1,15 +1,15 @@
 package com.lothrazar.simpletomb.data;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.UUID;
 import com.lothrazar.simpletomb.ModTomb;
 import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtUtils;
 import net.minecraft.world.item.ItemStack;
-import net.minecraftforge.common.util.Constants;
+
+import java.util.ArrayList;
+import java.util.List;
+import java.util.UUID;
 
 public class PlayerTombRecords {
 
@@ -33,7 +33,7 @@ public class PlayerTombRecords {
   public void read(CompoundTag data, UUID playerId) {
     this.playerId = playerId;
     if (data.contains(ModTomb.MODID)) {
-      ListTag glist = data.getList(ModTomb.MODID, Constants.NBT.TAG_COMPOUND);
+      ListTag glist = data.getList(ModTomb.MODID, CompoundTag.TAG_COMPOUND);
       for (int i = 0; i < glist.size(); i++) {
         this.playerGraves.add(glist.getCompound(i));
       }
@@ -43,9 +43,7 @@ public class PlayerTombRecords {
   public CompoundTag write() {
     CompoundTag data = new CompoundTag();
     ListTag glist = new ListTag();
-    for (CompoundTag g : playerGraves) {
-      glist.add(g);
-    }
+    glist.addAll(playerGraves);
     data.put(ModTomb.MODID, glist);
     return data;
   }

@@ -1,6 +1,5 @@
 package com.lothrazar.simpletomb.particle;
 
-import java.util.Random;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleProvider;
@@ -10,6 +9,8 @@ import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.util.Mth;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
+
+import java.util.Random;
 
 @OnlyIn(Dist.CLIENT)
 public class ParticleGraveSmoke extends TransparentParticle {
