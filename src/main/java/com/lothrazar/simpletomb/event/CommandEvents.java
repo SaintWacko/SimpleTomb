@@ -104,7 +104,6 @@ public class CommandEvents {
       for (int i = 0; i < found.playerGraves.size(); i++) {
         TranslatableComponent msg = new TranslatableComponent(found.toDisplayString(i));
         msg.setStyle(Style.EMPTY.withColor(ChatFormatting.GOLD));
-//        user.sendMessage(msg, user.getUUID());
         ctx.getSource().sendSuccess(msg, false);
       }
     }
@@ -140,7 +139,6 @@ public class CommandEvents {
 
   private int exeRestore(CommandContext<CommandSourceStack> ctx, GameProfile target, int index) throws CommandSyntaxException {
     TranslatableComponent msg = new TranslatableComponent("Attempting to restore tomb [" + index + "] for player " + target.getName() + ":" + target.getId());
-//    user.sendMessage(msg, user.getUUID());
     ctx.getSource().sendSuccess(msg, false);
     PlayerTombRecords found = ModTomb.GLOBAL.findGrave(target.getId());
     if (found != null) {
