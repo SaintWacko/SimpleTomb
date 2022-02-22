@@ -51,9 +51,7 @@ public class CommandEvents {
   public void onRegisterCommandsEvent(RegisterCommandsEvent event) {
     CommandDispatcher<CommandSourceStack> r = event.getDispatcher();
     r.register(LiteralArgumentBuilder.<CommandSourceStack> literal(ModTomb.MODID)
-        .requires((p) -> {
-          return p.hasPermission(3);
-        })
+        .requires((p) -> p.hasPermission(3))
         .then(Commands.literal(TombCommands.RESTORE.toString())
             .then(Commands.argument(ARG_PLAYER, GameProfileArgument.gameProfile()).suggests((cs, b) -> buildPlayerArg(cs, b))
                 .then(Commands.argument(ARG_SELECTED, IntegerArgumentType.integer())
@@ -89,38 +87,36 @@ public class CommandEvents {
   }
 
   private int exeDelete(CommandContext<CommandSourceStack> ctx, GameProfile target) throws CommandSyntaxException {
-    ServerPlayer user = ctx.getSource().getPlayerOrException();
     PlayerTombRecords found = ModTomb.GLOBAL.findGrave(target.getId());
     if (found != null) {
       int previous = found.playerGraves.size();
       found.deleteAll();
       TranslatableComponent msg = new TranslatableComponent("Deleted: " + previous);
       msg.setStyle(Style.EMPTY.withColor(ChatFormatting.GOLD));
-      user.sendMessage(msg, user.getUUID());
+      ctx.getSource().sendSuccess(msg, false);
     }
     return 0;
   }
 
   private int exeList(CommandContext<CommandSourceStack> ctx, GameProfile target) throws CommandSyntaxException {
-    ServerPlayer user = ctx.getSource().getPlayerOrException();
     PlayerTombRecords found = ModTomb.GLOBAL.findGrave(target.getId());
     if (found != null && found.playerGraves.size() > 0) {
       for (int i = 0; i < found.playerGraves.size(); i++) {
         TranslatableComponent msg = new TranslatableComponent(found.toDisplayString(i));
         msg.setStyle(Style.EMPTY.withColor(ChatFormatting.GOLD));
-        user.sendMessage(msg, user.getUUID());
+//        user.sendMessage(msg, user.getUUID());
+        ctx.getSource().sendSuccess(msg, false);
       }
     }
     else {
       TranslatableComponent msg = new TranslatableComponent("Found: #0");
       msg.setStyle(Style.EMPTY.withColor(ChatFormatting.GOLD));
-      user.sendMessage(msg, user.getUUID());
+      ctx.getSource().sendSuccess(msg, false);
     }
     return 0;
   }
 
   private int exeKey(CommandContext<CommandSourceStack> ctx, GameProfile target, int index) throws CommandSyntaxException {
-    ServerPlayer user = ctx.getSource().getPlayerOrException();
     PlayerTombRecords found = ModTomb.GLOBAL.findGrave(target.getId());
     if (found != null) {
       CompoundTag grave = found.playerGraves.get(index);
@@ -133,15 +129,19 @@ public class CommandEvents {
       TombRegistry.GRAVE_KEY.get().setTombPos(key, spawnPos);
       PlayerTombEvents.putKeyName(target.getName(), key);
       // key for u
+      TranslatableComponent msg = new TranslatableComponent("Attempting to give the key for tomb [" + index + "] to player " + target.getName() + ":" + target.getId());
+      ctx.getSource().sendSuccess(msg, false);
+
+      ServerPlayer user = ctx.getSource().getServer().getPlayerList().getPlayer(target.getId());
       ItemHandlerHelper.giveItemToPlayer(user, key);
     }
     return 0;
   }
 
   private int exeRestore(CommandContext<CommandSourceStack> ctx, GameProfile target, int index) throws CommandSyntaxException {
-    ServerPlayer user = ctx.getSource().getPlayerOrException();
     TranslatableComponent msg = new TranslatableComponent("Attempting to restore tomb [" + index + "] for player " + target.getName() + ":" + target.getId());
-    user.sendMessage(msg, user.getUUID());
+//    user.sendMessage(msg, user.getUUID());
+    ctx.getSource().sendSuccess(msg, false);
     PlayerTombRecords found = ModTomb.GLOBAL.findGrave(target.getId());
     if (found != null) {
       CompoundTag grave = found.playerGraves.get(index);
@@ -170,7 +170,7 @@ public class CommandEvents {
         }
       }
       msg = new TranslatableComponent("Restored tomb with at [" + pos + "] in " + dim);
-      user.sendMessage(msg, user.getUUID());
+      ctx.getSource().sendSuccess(msg, false);
     }
     return 0;
   }

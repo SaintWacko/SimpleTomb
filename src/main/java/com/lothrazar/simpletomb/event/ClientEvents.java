@@ -50,7 +50,7 @@ public class ClientEvents {
         if (location != null && !location.isOrigin() &&
             location.dim.equalsIgnoreCase(WorldHelper.dimensionToString(player.level)) &&
             player.level.isInWorldBounds(location.toBlockPos())) {
-          PoseStack poseStack = event.getMatrixStack();
+          PoseStack poseStack = event.getPoseStack();
           poseStack.pushPose();
           createBox(bufferSource, poseStack, location.x, location.y, location.z, 1.0F);
           poseStack.popPose();
