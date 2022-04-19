@@ -1,8 +1,7 @@
 buildscript {
     repositories {
-	 maven { url = 'https://maven.minecraftforge.net' }
-        maven { url = 'https://files.minecraftforge.net/maven' }
-        jcenter()
+        // These repositories are only for Gradle plugins, put any other repositories in the repository block further below
+        maven { url = 'https://maven.minecraftforge.net' }
         mavenCentral()
     }
     dependencies {
@@ -204,4 +203,8 @@ task copyJar(type: Copy) {
 
 cleanJar {
   delete 'build/libs'
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8' // Use the UTF-8 charset for Java compilation
 }
