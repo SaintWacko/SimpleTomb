@@ -80,6 +80,23 @@ public class BlockEntityTomb extends BlockEntity {
     }
   }
 
+  public void dropInventory(Level level, BlockPos pos) {
+    IItemHandler inventory = handler.orElse(null);
+    if (this.level != null && !this.level.isClientSide) {
+      for (int i = 0; i < inventory.getSlots(); ++i) {
+        ItemStack stack = inventory.getStackInSlot(i);
+        if (!stack.isEmpty()) {
+          Containers.dropItemStack(
+                  level,
+                  pos.getX(),
+                  pos.getY(),
+                  pos.getZ(),
+                  inventory.extractItem(i, stack.getCount(), false));
+        }
+      }
+    }
+  }
+
   public boolean onlyOwnersCanAccess() {
     return this.onlyOwnersAccess;
   }
@@ -180,23 +197,7 @@ public class BlockEntityTomb extends BlockEntity {
 
   @Override
   public void invalidateCaps() {
-    IItemHandler inventory = handler.orElse(null);
-    if (this.level != null && !this.level.isClientSide) {
-      if (this.level.getBlockState(this.worldPosition).getBlock() instanceof BlockTomb) {
-        return;
-      }
-      for (int i = 0; i < inventory.getSlots(); ++i) {
-        ItemStack stack = inventory.getStackInSlot(i);
-        if (!stack.isEmpty()) {
-          Containers.dropItemStack(
-              this.level,
-              this.worldPosition.getX(),
-              this.worldPosition.getY(),
-              this.worldPosition.getZ(),
-              inventory.extractItem(i, stack.getCount(), false));
-        }
-      }
-    }
+    handler.invalidate();
     super.invalidateCaps();
   }
 

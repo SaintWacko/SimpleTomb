@@ -120,4 +120,16 @@ public class BlockTomb extends BaseEntityBlock {
       TombRegistry.GRAVE_KEY.get().removeKeyForGraveInInventory(player, new LocationBlockPos(pos, level));
     }
   }
+
+  @Override
+  public void onRemove(BlockState state, Level level, BlockPos pos, BlockState newState, boolean isMoving) {
+    if (!state.is(newState.getBlock())) {
+      BlockEntity blockentity = level.getBlockEntity(pos);
+      if (blockentity instanceof BlockEntityTomb blockEntityTomb) {
+        blockEntityTomb.dropInventory(level, pos);
+      }
+
+      super.onRemove(state, level, pos, newState, isMoving);
+    }
+  }
 }
