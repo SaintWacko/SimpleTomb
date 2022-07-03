@@ -1,5 +1,7 @@
 package com.lothrazar.simpletomb.event;
 
+import java.util.List;
+import java.util.concurrent.CompletableFuture;
 import com.lothrazar.simpletomb.ModTomb;
 import com.lothrazar.simpletomb.TombRegistry;
 import com.lothrazar.simpletomb.block.BlockEntityTomb;
@@ -24,8 +26,9 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.network.chat.Style;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -38,9 +41,6 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemHandlerHelper;
-
-import java.util.List;
-import java.util.concurrent.CompletableFuture;
 
 public class CommandEvents {
 
@@ -91,7 +91,7 @@ public class CommandEvents {
     if (found != null) {
       int previous = found.playerGraves.size();
       found.deleteAll();
-      TranslatableComponent msg = new TranslatableComponent("Deleted: " + previous);
+      MutableComponent msg = Component.translatable("Deleted: " + previous);
       msg.setStyle(Style.EMPTY.withColor(ChatFormatting.GOLD));
       ctx.getSource().sendSuccess(msg, false);
     }
@@ -102,13 +102,13 @@ public class CommandEvents {
     PlayerTombRecords found = ModTomb.GLOBAL.findGrave(target.getId());
     if (found != null && found.playerGraves.size() > 0) {
       for (int i = 0; i < found.playerGraves.size(); i++) {
-        TranslatableComponent msg = new TranslatableComponent(found.toDisplayString(i));
+        MutableComponent msg = Component.translatable(found.toDisplayString(i));
         msg.setStyle(Style.EMPTY.withColor(ChatFormatting.GOLD));
         ctx.getSource().sendSuccess(msg, false);
       }
     }
     else {
-      TranslatableComponent msg = new TranslatableComponent("Found: #0");
+      MutableComponent msg = Component.translatable("Found: #0");
       msg.setStyle(Style.EMPTY.withColor(ChatFormatting.GOLD));
       ctx.getSource().sendSuccess(msg, false);
     }
@@ -128,9 +128,8 @@ public class CommandEvents {
       TombRegistry.GRAVE_KEY.get().setTombPos(key, spawnPos);
       PlayerTombEvents.putKeyName(target.getName(), key);
       // key for u
-      TranslatableComponent msg = new TranslatableComponent("Attempting to give the key for tomb [" + index + "] to player " + target.getName() + ":" + target.getId());
+      MutableComponent msg = Component.translatable("Attempting to give the key for tomb [" + index + "] to player " + target.getName() + ":" + target.getId());
       ctx.getSource().sendSuccess(msg, false);
-
       ServerPlayer user = ctx.getSource().getServer().getPlayerList().getPlayer(target.getId());
       ItemHandlerHelper.giveItemToPlayer(user, key);
     }
@@ -138,7 +137,7 @@ public class CommandEvents {
   }
 
   private int exeRestore(CommandContext<CommandSourceStack> ctx, GameProfile target, int index) throws CommandSyntaxException {
-    TranslatableComponent msg = new TranslatableComponent("Attempting to restore tomb [" + index + "] for player " + target.getName() + ":" + target.getId());
+    MutableComponent msg = Component.translatable("Attempting to restore tomb [" + index + "] for player " + target.getName() + ":" + target.getId());
     ctx.getSource().sendSuccess(msg, false);
     PlayerTombRecords found = ModTomb.GLOBAL.findGrave(target.getId());
     if (found != null) {
@@ -167,7 +166,7 @@ public class CommandEvents {
           ItemHandlerHelper.insertItemStacked(itemHandler, d.copy(), false);
         }
       }
-      msg = new TranslatableComponent("Restored tomb with at [" + pos + "] in " + dim);
+      msg = Component.translatable("Restored tomb with at [" + pos + "] in " + dim);
       ctx.getSource().sendSuccess(msg, false);
     }
     return 0;

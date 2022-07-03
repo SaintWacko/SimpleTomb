@@ -1,5 +1,7 @@
 package com.lothrazar.simpletomb.item;
 
+import java.util.List;
+import javax.annotation.Nullable;
 import com.lothrazar.simpletomb.ConfigTomb;
 import com.lothrazar.simpletomb.TombRegistry;
 import com.lothrazar.simpletomb.block.BlockTomb;
@@ -13,7 +15,6 @@ import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.InteractionHand;
 import net.minecraft.world.InteractionResult;
 import net.minecraft.world.InteractionResultHolder;
@@ -33,9 +34,6 @@ import net.minecraftforge.api.distmarker.OnlyIn;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 
-import javax.annotation.Nullable;
-import java.util.List;
-
 public class GraveKeyItem extends SwordItem {
 
   private static final String TOMB_POS = "tombPos";
@@ -47,7 +45,7 @@ public class GraveKeyItem extends SwordItem {
   @Override
   @OnlyIn(Dist.CLIENT)
   public Component getDescription() {
-    return new TranslatableComponent(this.getDescriptionId()).withStyle(ChatFormatting.GOLD);
+    return Component.translatable(this.getDescriptionId()).withStyle(ChatFormatting.GOLD);
   }
 
   @Override
@@ -126,9 +124,9 @@ public class GraveKeyItem extends SwordItem {
       if (player != null && !location.isOrigin()) {
         BlockPos pos = player.blockPosition();
         int distance = (int) location.getDistance(pos);
-        list.add(new TranslatableComponent(MessageType.MESSAGE_DISTANCE.getKey(),
+        list.add(Component.translatable(MessageType.MESSAGE_DISTANCE.getKey(),
             distance, location.x, location.y, location.z, location.dim)
-                .withStyle(ChatFormatting.DARK_PURPLE));
+            .withStyle(ChatFormatting.DARK_PURPLE));
       }
     }
     super.appendHoverText(stack, world, list, flag);

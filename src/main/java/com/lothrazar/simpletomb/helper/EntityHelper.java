@@ -1,5 +1,6 @@
 package com.lothrazar.simpletomb.helper;
 
+import javax.annotation.Nullable;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.entity.Entity;
@@ -14,8 +15,7 @@ import net.minecraftforge.common.ToolActions;
 import net.minecraftforge.common.util.FakePlayer;
 import net.minecraftforge.fml.ModList;
 import net.minecraftforge.items.ItemHandlerHelper;
-
-import javax.annotation.Nullable;
+import net.minecraftforge.registries.ForgeRegistries;
 
 public class EntityHelper {
 
@@ -25,7 +25,7 @@ public class EntityHelper {
     if (stack.isEmpty()) {
       return false;
     }
-    ResourceLocation registryName = stack.getItem().getRegistryName();
+    ResourceLocation registryName = ForgeRegistries.ITEMS.getKey(stack.getItem()); //stack.getItem().getRegistryName();
     if (registryName == null) {
       return false;
     }

@@ -1,5 +1,16 @@
 package com.lothrazar.simpletomb.event;
 
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Iterator;
+import java.util.List;
+import java.util.Map;
+import java.util.UUID;
+import org.apache.logging.log4j.Level;
 import com.lothrazar.simpletomb.ConfigTomb;
 import com.lothrazar.simpletomb.ModTomb;
 import com.lothrazar.simpletomb.TombRegistry;
@@ -18,7 +29,8 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.NbtIo;
 import net.minecraft.nbt.NbtUtils;
-import net.minecraft.network.chat.TranslatableComponent;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.item.ItemEntity;
@@ -37,18 +49,6 @@ import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.items.CapabilityItemHandler;
 import net.minecraftforge.items.IItemHandler;
 import net.minecraftforge.items.ItemHandlerHelper;
-import org.apache.logging.log4j.Level;
-
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
-import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.List;
-import java.util.Map;
-import java.util.UUID;
 
 public class PlayerTombEvents {
 
@@ -323,8 +323,8 @@ public class PlayerTombEvents {
 
   public static void putKeyName(String player, ItemStack key) {
     if (ConfigTomb.KEYNAMED.get()) {
-      TranslatableComponent text = new TranslatableComponent(player);
-      text.append(new TranslatableComponent(" "));
+      MutableComponent text = Component.translatable(player);
+      text.append(Component.literal(" "));
       text.append(key.getHoverName());
       text.withStyle(ChatFormatting.GOLD);
       key.setHoverName(text);

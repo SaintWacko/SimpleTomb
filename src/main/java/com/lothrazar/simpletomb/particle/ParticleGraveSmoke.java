@@ -1,5 +1,6 @@
 package com.lothrazar.simpletomb.particle;
 
+import java.util.Random;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleProvider;
@@ -7,10 +8,9 @@ import net.minecraft.client.particle.ParticleRenderType;
 import net.minecraft.client.particle.SpriteSet;
 import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.util.Mth;
+import net.minecraft.util.RandomSource;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-
-import java.util.Random;
 
 @OnlyIn(Dist.CLIENT)
 public class ParticleGraveSmoke extends TransparentParticle {
@@ -73,7 +73,7 @@ public class ParticleGraveSmoke extends TransparentParticle {
 
     @Override
     public Particle createParticle(SimpleParticleType type, ClientLevel world, double x, double y, double z, double motionX, double motionY, double motionZ) {
-      Random rand = world == null || world.random == null ? new Random() : world.random;
+      RandomSource rand = (world == null) ? RandomSource.createThreadSafe() : world.random;
       return new ParticleGraveSmoke(this.spriteSet, world, x, y + 0.4d, z, (rand.nextFloat() - 0.5f) * 0.03d, 0d, (rand.nextFloat() - 0.5f) * 0.03d);
     }
   }

@@ -8,10 +8,9 @@ import net.minecraft.client.particle.ParticleProvider;
 import net.minecraft.client.particle.ParticleRenderType;
 import net.minecraft.client.particle.SpriteSet;
 import net.minecraft.core.particles.SimpleParticleType;
+import net.minecraft.util.RandomSource;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-
-import java.util.Random;
 
 @OnlyIn(Dist.CLIENT)
 public class ParticleGhost extends TransparentParticle {
@@ -71,7 +70,7 @@ public class ParticleGhost extends TransparentParticle {
 
     @Override
     public Particle createParticle(SimpleParticleType type, ClientLevel world, double x, double y, double z, double motionX, double motionY, double motionZ) {
-      Random rand = world == null || world.random == null ? new Random() : world.random;
+      RandomSource rand = (world == null) ? RandomSource.createThreadSafe() : world.random;
       return new ParticleGhost(this.spriteSet, world, x, y, z, WorldHelper.getRandom(rand, -0.05d, 0.05d), 0d, WorldHelper.getRandom(rand, -0.05d, 0.05d));
     }
   }

@@ -39,7 +39,7 @@ public class BlockTomb extends BaseEntityBlock {
   protected final ModelTomb graveModel;
 
   public BlockTomb(Block.Properties properties, ModelTomb graveModel) {
-    super(properties.noOcclusion().strength(-1.0F, 3600000.0F).noDrops());
+    super(properties.noOcclusion().strength(-1.0F, 3600000.0F));
     this.graveModel = graveModel;
     this.name = graveModel.getSerializedName();
   }
@@ -62,11 +62,6 @@ public class BlockTomb extends BaseEntityBlock {
   public String getDescriptionId() {
     return ModTomb.MODID + ".grave." + this.name;
   }
-
-//  @Override
-//  public boolean isToolEffective(BlockState state, ToolType tool) { TODO: See if there's a replacement
-//    return false;
-//  }
 
   @Override
   public boolean dropFromExplosion(Explosion explosionIn) {
@@ -128,7 +123,6 @@ public class BlockTomb extends BaseEntityBlock {
       if (blockentity instanceof BlockEntityTomb blockEntityTomb) {
         blockEntityTomb.dropInventory(level, pos);
       }
-
       super.onRemove(state, level, pos, newState, isMoving);
     }
   }

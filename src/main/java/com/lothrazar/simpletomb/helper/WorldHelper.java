@@ -1,8 +1,11 @@
 package com.lothrazar.simpletomb.helper;
 
+import java.util.ArrayList;
+import java.util.List;
 import com.lothrazar.simpletomb.ConfigTomb;
 import com.lothrazar.simpletomb.data.LocationBlockPos;
 import net.minecraft.core.BlockPos;
+import net.minecraft.util.RandomSource;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.GameRules;
 import net.minecraft.world.level.Level;
@@ -10,13 +13,9 @@ import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.border.WorldBorder;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Random;
-
 public class WorldHelper {
 
-  public static float getRandom(Random rand, double min, double max) {
+  public static float getRandom(RandomSource rand, double min, double max) {
     return (float) (rand.nextDouble() * (max - min) + min);
   }
 

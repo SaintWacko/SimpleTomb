@@ -4,7 +4,6 @@ import com.lothrazar.simpletomb.ModTomb;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.Style;
-import net.minecraft.network.chat.TranslatableComponent;
 import net.minecraft.world.entity.player.Player;
 
 public enum MessageType {
@@ -34,15 +33,14 @@ public enum MessageType {
   }
 
   public Component getTranslationWithStyle(Style style, Object... params) {
-    return new TranslatableComponent(getKey(), params).setStyle(style);
+    return Component.translatable(getKey(), params).setStyle(style);
   }
 
   public String getTranslation(Object... params) {
-    return new TranslatableComponent(getKey(), params).getString();
+    return Component.translatable(getKey(), params).getString();
   }
 
   public void sendSpecialMessage(Player sender, Object... params) {
-    // 
-    sender.sendMessage(this.getTranslationWithStyle(MESSAGE_SPECIAL, params), sender.getUUID());
+    sender.sendSystemMessage(this.getTranslationWithStyle(MESSAGE_SPECIAL, params));
   }
 }
