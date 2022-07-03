@@ -2,7 +2,7 @@
   "homepage": "https://www.curseforge.com/minecraft/mc-mods/simple-tomb",
   "promos": {
     "1.18.2-latest": "1.0.14",
-    "1.18.2-recommended": "1.0.14"
+    "1.19-latest": "1.0.14"
   },
   "1.18.2": {
     "1.0.9":"Ported",
@@ -11,5 +11,8 @@
     "1.0.12":"Fix SimpleTombs not spawning under Y 1 (It now checks minimum build height)",
     "1.0.13":"Allow the commands to be run through consoles",
     "1.0.14":"Fix invalidateCaps calling getBlockState "
+  },
+  "1.19":{
+  	"1.0.14":"Ported"
   }
 }
