@@ -21,7 +21,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.phys.Vec3;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.api.distmarker.OnlyIn;
-import net.minecraftforge.client.event.ParticleFactoryRegisterEvent;
+import net.minecraftforge.client.event.RegisterParticleProvidersEvent;
 import net.minecraftforge.client.event.RenderLevelLastEvent;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
@@ -32,7 +32,7 @@ import net.minecraftforge.fml.common.Mod;
 public class ClientEvents {
 
   @SubscribeEvent(priority = EventPriority.LOW)
-  public static void registerParticleFactories(ParticleFactoryRegisterEvent event) {
+  public static void registerParticleFactories(RegisterParticleProvidersEvent event) {
     ParticleEngine r = Minecraft.getInstance().particleEngine;
     r.register(TombRegistry.GRAVE_SMOKE.get(), ParticleGraveSmoke.Factory::new);
     r.register(TombRegistry.ROTATING_SMOKE.get(), ParticleRotatingSmoke.Factory::new);

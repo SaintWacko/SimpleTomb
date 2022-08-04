@@ -29,7 +29,7 @@ public class EntityHelper {
     if (registryName == null) {
       return false;
     }
-    if (EnchantmentHelper.getItemEnchantmentLevel(Enchantments.BINDING_CURSE, stack) > 0) {
+    if (EnchantmentHelper.getTagEnchantmentLevel(Enchantments.BINDING_CURSE, stack) > 0) {
       return false;
     }
     if (stack.getMaxStackSize() == 1) {

@@ -43,7 +43,7 @@ import net.minecraftforge.event.entity.living.LivingDropsEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent.PlayerLoggedInEvent;
 import net.minecraftforge.event.entity.player.PlayerEvent.PlayerRespawnEvent;
-import net.minecraftforge.event.world.ExplosionEvent.Detonate;
+import net.minecraftforge.event.level.ExplosionEvent.Detonate;
 import net.minecraftforge.eventbus.api.EventPriority;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.items.CapabilityItemHandler;
@@ -65,8 +65,8 @@ public class PlayerTombEvents {
 
   @SubscribeEvent(priority = EventPriority.HIGH)
   public void onPlayerLogged(PlayerLoggedInEvent event) {
-    if (EntityHelper.isValidPlayerMP(event.getPlayer())) {
-      ServerPlayer player = (ServerPlayer) event.getPlayer();
+    if (EntityHelper.isValidPlayerMP(event.getEntity())) {
+      ServerPlayer player = (ServerPlayer) event.getEntity();
       assert player.getServer() != null;
       CompoundTag playerData = player.getPersistentData();
       CompoundTag persistantData;
@@ -82,12 +82,12 @@ public class PlayerTombEvents {
 
   @SubscribeEvent(priority = EventPriority.LOWEST)
   public void onDetonate(Detonate event) {
-    event.getAffectedBlocks().removeIf(blockPos -> (event.getWorld().getBlockState(blockPos).getBlock() instanceof BlockTomb));
+    event.getAffectedBlocks().removeIf(blockPos -> (event.getLevel().getBlockState(blockPos).getBlock() instanceof BlockTomb));
   }
 
   @SubscribeEvent(priority = EventPriority.LOWEST)
   public void onPlayerRespawn(PlayerRespawnEvent event) {
-    Player player = event.getPlayer();
+    Player player = event.getEntity();
     if (EntityHelper.isValidPlayerMP(player) && !player.isSpectator()) {
       CompoundTag persistentTag = EntityHelper.getPersistentTag(player);
       ListTag stackList = persistentTag.getList(TB_SOULBOUND_STACKS, 10);
@@ -138,8 +138,8 @@ public class PlayerTombEvents {
     if (!ConfigTomb.TOMBENABLED.get()) {
       return;
     }
-    if (!EntityHelper.isValidPlayer(event.getEntityLiving()) ||
-        WorldHelper.isRuleKeepInventory((Player) event.getEntityLiving())) {
+    if (!EntityHelper.isValidPlayer(event.getEntity()) ||
+        WorldHelper.isRuleKeepInventory((Player) event.getEntity())) {
       return;
     }
     saveBackup(event);
@@ -148,7 +148,7 @@ public class PlayerTombEvents {
 
   @SubscribeEvent
   public void onSaveFile(PlayerEvent.SaveToFile event) {
-    Player player = event.getPlayer();
+    Player player = event.getEntity();
     File mctomb = new File(event.getPlayerDirectory(), player.getUUID() + TOMB_FILE_EXT);
     //
     //save player data to the file 
@@ -169,7 +169,7 @@ public class PlayerTombEvents {
 
   @SubscribeEvent
   public void onLoadFile(PlayerEvent.LoadFromFile event) {
-    Player player = event.getPlayer();
+    Player player = event.getEntity();
     File mctomb = new File(event.getPlayerDirectory(), player.getUUID() + TOMB_FILE_EXT);
     if (mctomb.exists()) {
       try {
@@ -195,7 +195,7 @@ public class PlayerTombEvents {
   }
 
   private void saveBackup(LivingDropsEvent event) {
-    ServerPlayer player = (ServerPlayer) event.getEntityLiving();
+    ServerPlayer player = (ServerPlayer) event.getEntity();
     //    ServerWorld world = player.getServerWorld();
     Iterator<ItemEntity> it = event.getDrops().iterator();
     ListTag drops = new ListTag();
@@ -234,7 +234,7 @@ public class PlayerTombEvents {
   }
 
   private void placeTombstone(LivingDropsEvent event) {
-    ServerPlayer player = (ServerPlayer) event.getEntityLiving();
+    ServerPlayer player = (ServerPlayer) event.getEntity();
     ServerLevel world = player.getLevel();
     Iterator<ItemEntity> it = event.getDrops().iterator();
     ArrayList<ItemStack> keys = new ArrayList<>();
